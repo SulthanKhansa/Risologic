@@ -5,11 +5,18 @@ namespace Database\Seeders;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
 
 class AdminSeeder extends Seeder
 {
     public function run(): void
     {
+        // 1. Create Roles if they don't exist
+        $adminRole = Role::firstOrCreate(['name' => 'super_admin', 'guard_name' => 'web']);
+        $staffRole = Role::firstOrCreate(['name' => 'staff', 'guard_name' => 'web']);
+
+        // 2. Create/Update Admin User
         $user = User::updateOrCreate(
             ['username' => 'admin'],
             [
@@ -20,9 +27,7 @@ class AdminSeeder extends Seeder
             ]
         );
 
-        // Assign super_admin role if Spatie roles exist
-        if (class_exists(\Spatie\Permission\Models\Role::class)) {
-            $user->assignRole('super_admin');
-        }
+        // 3. Assign Role to Admin
+        $user->assignRole($adminRole);
     }
 }
