@@ -17,7 +17,7 @@ class ProductResource extends Resource
     protected static ?string $model = Product::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-sparkles';
-    protected static ?string $navigationGroup = 'Penjualan';
+    protected static ?string $navigationGroup = 'Sales';
 
     public static function form(Form $form): Form
     {
@@ -27,7 +27,7 @@ class ProductResource extends Resource
                     ->required()
                     ->unique('products', 'name', ignoreRecord: true)
                     ->maxLength(255)
-                    ->label('Nama Produk'),
+                    ->label('Product Name'),
 
                 TextInput::make('slug')
                     ->required()
@@ -53,7 +53,7 @@ class ProductResource extends Resource
                     ->required()
                     ->integer()
                     ->minValue(0)
-                    ->label('Stok Saat Ini'),
+                    ->label('Available Stock'),
                 
                 Forms\Components\Repeater::make('recipeItems')
                     ->relationship('recipeItems')
@@ -63,15 +63,15 @@ class ProductResource extends Resource
                             ->required()
                             ->searchable()
                             ->preload()
-                            ->label('Bahan Baku'),
+                            ->label('Raw Material'),
                         Forms\Components\TextInput::make('quantity_required')
                             ->numeric()
                             ->required()
-                            ->label('Takaran'),
+                            ->label('Usage per Pcs'),
                     ])
                     ->columns(2)
                     ->columnSpanFull()
-                    ->label('Resep (Bahan untuk 1 Pcs)'),
+                    ->label('Recipe (Materials per 1 Pcs)'),
             ]);
     }
 
@@ -85,7 +85,7 @@ class ProductResource extends Resource
                 TextColumn::make('name')
                     ->searchable()
                     ->sortable()
-                    ->label('Produk'),
+                    ->label('Product'),
 
                 TextColumn::make('slug')
                     ->searchable()
@@ -104,12 +104,12 @@ class ProductResource extends Resource
                     ->sortable()
                     ->badge()
                     ->color(fn (int $state): string => $state < 50 ? 'danger' : 'success')
-                    ->label('Stok'),
+                    ->label('Stock'),
 
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
-                    ->label('Dibuat'),
+                    ->label('Created At'),
             ])
             ->filters([
                 //

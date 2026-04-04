@@ -13,16 +13,16 @@ class StatsOverview extends BaseWidget
     protected function getStats(): array
     {
         return [
-            Stat::make('Total Produk', Product::count())
-                ->description('Produk siap jual')
+            Stat::make('Total Products', Product::count())
+                ->description('Products ready to sell')
                 ->descriptionIcon('heroicon-m-sparkles')
                 ->color('success'),
-            Stat::make('Stok Bahan Baku', RawMaterial::count())
-                ->description('Jenis bahan tersedia')
+            Stat::make('Raw Material Stock', RawMaterial::count())
+                ->description('Types of materials available')
                 ->descriptionIcon('heroicon-m-shopping-cart')
                 ->color('warning'),
-            Stat::make('Total Penjualan', 'Rp ' . number_format(Sale::where('status', 'paid')->sum('total_price'), 0, ',', '.'))
-                ->description('Pendapatan lunas')
+            Stat::make('Total Sales', 'Rp ' . number_format(Sale::where('status', 'paid')->sum('total_price'), 0, ',', '.'))
+                ->description('Cleared revenue')
                 ->descriptionIcon('heroicon-m-banknotes')
                 ->color('info'),
         ];

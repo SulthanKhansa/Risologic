@@ -23,7 +23,7 @@ class SaleResource extends Resource
     protected static ?string $model = Sale::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-banknotes';
-    protected static ?string $navigationGroup = 'Penjualan';
+    protected static ?string $navigationGroup = 'Sales';
     protected static ?string $modelLabel = 'Penjualan';
 
     public static function form(Form $form): Form
@@ -66,7 +66,7 @@ class SaleResource extends Resource
                             ->default(1)
                             ->live(onBlur: true)
                             ->afterStateUpdated(fn (Get $get, Set $set) => self::updateCalculations($get, $set))
-                            ->label('Jumlah'),
+                            ->label('Quantity'),
 
                         TextInput::make('total_price')
                             ->numeric()
@@ -174,12 +174,12 @@ class SaleResource extends Resource
 
                 TextColumn::make('qty')
                     ->sortable()
-                    ->label('Qty'),
+                    ->label('Quantity'),
 
                 TextColumn::make('total_price')
                     ->formatStateUsing(fn ($state) => 'Rp ' . number_format($state ?? 0, 0, ',', '.'))
                     ->sortable()
-                    ->label('Total Jual'),
+                    ->label('Total Price'),
 
                 TextColumn::make('net_income')
                     ->formatStateUsing(fn ($state) => 'Rp ' . number_format($state ?? 0, 0, ',', '.'))

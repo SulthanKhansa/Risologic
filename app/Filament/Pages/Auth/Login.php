@@ -17,6 +17,15 @@ class Login extends BaseLogin
             ->autofocus();
     }
 
+    protected function getPasswordFormComponent(): TextInput
+    {
+        return TextInput::make('password')
+            ->label('Password')
+            ->prefixIcon('heroicon-m-lock-closed')
+            ->password()
+            ->required();
+    }
+
     protected function getCredentialsFromFormData(array $data): array
     {
         return [

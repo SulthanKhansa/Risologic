@@ -16,8 +16,8 @@ class ProductionEventResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-command-line';
     
-    protected static ?string $navigationGroup = 'Produksi';
-    protected static ?string $modelLabel = 'Produksi';
+    protected static ?string $navigationGroup = 'Production';
+    protected static ?string $modelLabel = 'Production';
 
     public static function form(Form $form): Form
     {
@@ -28,27 +28,27 @@ class ProductionEventResource extends Resource
                     ->required()
                     ->searchable()
                     ->preload()
-                    ->label('Produk Jadi (Target)'),
+                    ->label('Finished Product'),
                 Forms\Components\TextInput::make('quantity_produced')
                     ->required()
                     ->numeric()
                     ->minValue(1)
-                    ->label('Jumlah Diproduksi'),
+                    ->label('Quantity Produced'),
                 Forms\Components\DatePicker::make('production_date')
                     ->required()
                     ->default(now())
-                    ->label('Tanggal Produksi'),
+                    ->label('Production Date'),
                 Forms\Components\Select::make('status')
                     ->options([
-                        'completed' => 'Selesai (Potong Stok Bahan Baku Sekarang)',
-                        'draft' => 'Draft / Rencana',
+                        'completed' => 'Completed (Deduct Raw Materials Now)',
+                        'draft' => 'Draft / Plan',
                     ])
                     ->default('completed')
                     ->required()
-                    ->label('Status Produksi'),
+                    ->label('Production Status'),
                 Forms\Components\Textarea::make('notes')
                     ->columnSpanFull()
-                    ->label('Catatan'),
+                    ->label('Notes'),
             ]);
     }
 
@@ -59,15 +59,15 @@ class ProductionEventResource extends Resource
                 Tables\Columns\TextColumn::make('product.name')
                     ->sortable()
                     ->searchable()
-                    ->label('Produk'),
+                    ->label('Product'),
                 Tables\Columns\TextColumn::make('quantity_produced')
                     ->numeric()
                     ->sortable()
-                    ->label('Jumlah'),
+                    ->label('Quantity'),
                 Tables\Columns\TextColumn::make('production_date')
                     ->date()
                     ->sortable()
-                    ->label('Tanggal'),
+                    ->label('Date'),
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
                     ->colors([

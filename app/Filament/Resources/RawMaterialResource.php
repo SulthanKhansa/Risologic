@@ -15,8 +15,8 @@ class RawMaterialResource extends Resource
     protected static ?string $model = RawMaterial::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-shopping-cart';
-    protected static ?string $navigationGroup = 'Inventaris';
-    protected static ?string $modelLabel = 'Bahan Baku';
+    protected static ?string $navigationGroup = 'Inventory';
+    protected static ?string $modelLabel = 'Raw Material';
 
     public static function form(Form $form): Form
     {
@@ -24,12 +24,12 @@ class RawMaterialResource extends Resource
             ->schema([
                 Forms\Components\TextInput::make('name')
                     ->required()
-                    ->label('Nama Bahan Baku'),
+                    ->label('Material Name'),
                 Forms\Components\TextInput::make('unit')
                     ->required()
-                    ->label('Satuan (Misal: Kg, Gram, Liter, Sachet)'),
+                    ->label('Unit (e.g. Kg, Gram, Liter, Pcs)'),
                 Forms\Components\TextInput::make('price_per_unit')
-                    ->label('Harga Beli (Per Satuan)')
+                    ->label('Purchase Price (Per Unit)')
                     ->numeric()
                     ->required()
                     ->prefix('Rp')
@@ -37,7 +37,7 @@ class RawMaterialResource extends Resource
                 Forms\Components\TextInput::make('current_stock')
                     ->required()
                     ->numeric()
-                    ->label('Stok Saat Ini (Satuan)')
+                    ->label('Current Stock (Units)')
                     ->default(0),
             ]);
     }
@@ -48,18 +48,18 @@ class RawMaterialResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->searchable()
-                    ->label('Nama'),
+                    ->label('Name'),
                 Tables\Columns\TextColumn::make('unit')
                     ->searchable()
-                    ->label('Satuan'),
+                    ->label('Unit'),
                 Tables\Columns\TextColumn::make('price_per_unit')
                     ->formatStateUsing(fn ($state) => 'Rp ' . number_format($state ?? 0, 0, ',', '.'))
                     ->sortable()
-                    ->label('Harga Beli Satuan'),
+                    ->label('Unit Price'),
                 Tables\Columns\TextColumn::make('current_stock')
                     ->numeric()
                     ->sortable()
-                    ->label('Stok Saat Ini'),
+                    ->label('Current Stock'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
