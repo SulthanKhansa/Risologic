@@ -7,4 +7,4 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction --ignore-pl
 RUN npm install && npm run build
 RUN php artisan filament:assets
 RUN php artisan config:clear && php artisan view:clear
-CMD php artisan migrate:fresh --force && php artisan db:seed --class=AdminSeeder --force && php artisan serve --host=0.0.0.0 --port=${PORT:-8080}
+CMD php artisan migrate --force && php artisan db:seed --class=AdminSeeder --force && php artisan config:cache && php artisan route:cache && php artisan view:cache && php artisan serve --host=0.0.0.0 --port=${PORT:-8080}
