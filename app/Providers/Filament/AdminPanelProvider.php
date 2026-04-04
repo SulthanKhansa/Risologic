@@ -28,7 +28,7 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->brandName('Risologic')
-            ->login()
+            ->login(\App\Filament\Pages\Auth\Login::class)
             ->colors([
                 'primary' => Color::Orange, // Action Color 10%
                 'secondary' => Color::Slate, // Secondary (Navy-like)
