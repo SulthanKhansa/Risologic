@@ -64,12 +64,12 @@ return [
 
         'pgsql' => [
             'driver' => 'pgsql',
-            'url' => env('DATABASE_URL'),
-            'host' => env('DB_HOST', env('PGHOST', env('HOST', '127.0.0.1'))),
+            'url' => env('DB_INTERNAL_URL', env('DATABASE_URL')),
+            'host' => env('DB_HOST', env('PGHOST', env('HOST'))),
             'port' => env('DB_PORT', env('PGPORT', env('PORT_DB', '5432'))),
-            'database' => env('DB_DATABASE', env('PGDATABASE', env('DB_NAME', 'railway'))),
-            'username' => env('DB_USERNAME', env('PGUSER', env('DB_USER', 'postgres'))),
-            'password' => env('DB_PASSWORD', env('PGPASSWORD', env('DB_PASS', ''))),
+            'database' => env('DB_DATABASE', env('PGDATABASE', env('DB_NAME'))),
+            'username' => env('DB_USERNAME', env('PGUSER', env('DB_USER'))),
+            'password' => env('DB_PASSWORD', env('PGPASSWORD', env('DB_PASS'))),
             'charset' => 'utf8',
             'prefix' => '',
             'prefix_indexes' => true,
