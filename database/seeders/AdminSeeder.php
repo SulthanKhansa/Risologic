@@ -10,7 +10,7 @@ class AdminSeeder extends Seeder
 {
     public function run(): void
     {
-        User::updateOrCreate(
+        $user = User::updateOrCreate(
             ['username' => 'admin'],
             [
                 'name' => 'Administrator',
@@ -19,5 +19,10 @@ class AdminSeeder extends Seeder
                 'password' => Hash::make('123'),
             ]
         );
+
+        // Assign super_admin role if Spatie roles exist
+        if (class_exists(\Spatie\Permission\Models\Role::class)) {
+            $user->assignRole('super_admin');
+        }
     }
 }
