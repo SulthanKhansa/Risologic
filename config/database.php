@@ -16,7 +16,7 @@ return [
     |
     */
 
-    'default' => env('DB_CONNECTION', 'sqlite'),
+    'default' => env('DB_CONNECTION', 'pgsql'),
 
     /*
     |--------------------------------------------------------------------------
@@ -65,10 +65,10 @@ return [
         'pgsql' => [
             'driver' => 'pgsql',
             'url' => env('DATABASE_URL'),
-            'host' => env('DB_HOST', env('PGHOST', '127.0.0.1')),
-            'port' => env('DB_PORT', env('PGPORT', '5432')),
-            'database' => env('DB_DATABASE', env('PGDATABASE', 'laravel')),
-            'username' => env('DB_USERNAME', env('PGUSER', 'root')),
+            'host' => env('DB_HOST', env('PGHOST', env('HOST', ''))),
+            'port' => env('DB_PORT', env('PGPORT', env('PORT_DB', '5432'))),
+            'database' => env('DB_DATABASE', env('PGDATABASE', '')),
+            'username' => env('DB_USERNAME', env('PGUSER', '')),
             'password' => env('DB_PASSWORD', env('PGPASSWORD', '')),
             'charset' => 'utf8',
             'prefix' => '',

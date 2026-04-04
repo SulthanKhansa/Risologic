@@ -4,6 +4,7 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 RUN docker-php-ext-install pdo_pgsql opcache
 WORKDIR /app
 COPY . .
+RUN rm -f .env
 RUN composer install --no-dev --optimize-autoloader
 RUN npm install && npm run build
 RUN php artisan filament:assets
