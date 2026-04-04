@@ -8,4 +8,4 @@ RUN cp .env.example .env && php artisan key:generate
 RUN npm install && npm run build
 RUN php artisan filament:assets
 RUN php artisan config:clear && php artisan view:clear
-CMD php artisan migrate --force && php artisan db:seed --class=AdminSeeder --force && php artisan serve --host=0.0.0.0 --port=${PORT:-8080}
+CMD php artisan migrate --force && php artisan shield:install --force && php artisan shield:generate --all && php artisan db:seed --class=AdminSeeder --force && php artisan serve --host=0.0.0.0 --port=${PORT:-8080}
