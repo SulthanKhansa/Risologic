@@ -4,7 +4,10 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\ProductResource\Pages;
 use App\Models\Product;
+use App\Models\RawMaterial;
 use Filament\Forms;
+use Filament\Forms\Get;
+use Filament\Forms\Set;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -42,8 +45,9 @@ class ProductResource extends Resource
                     ->prefix('Rp')
                     ->step('0.01')
                     ->minValue(0)
-                    ->label('Harga Modal (HPP) per Biji')
-                    ->helperText('Gunakan harga modal dasar untuk perhitungan margin.'),
+                    ->label('Modal (HPP) per Pcs')
+                    ->helperText('This value will auto-calculate based on recipe below, but stay manual-editable.')
+                    ->id('base_price_field'),
 
                 // Removing redundant HPP field since base_price is now HPP
 
@@ -63,16 +67,40 @@ class ProductResource extends Resource
                             ->required()
                             ->searchable()
                             ->preload()
-                            ->label('Raw Material'),
+                            ->label('Raw Material')
+                            ->live()
+                            ->afterStateUpdated(fn (Get $get, Set $set) => self::updateHpp($get, $set)),
                         Forms\Components\TextInput::make('quantity_required')
                             ->numeric()
                             ->required()
-                            ->label('Usage per Pcs'),
+                            ->label('Usage qty')
+                            ->live(onBlur: true)
+                            ->afterStateUpdated(fn (Get $get, Set $set) => self::updateHpp($get, $set)),
                     ])
                     ->columns(2)
                     ->columnSpanFull()
-                    ->label('Recipe (Materials per 1 Pcs)'),
+                    ->label('Recipe (Materials for 1 Single Piece)')
+                    ->addActionLabel('Add Material to Recipe')
+                    ->live()
+                    ->afterStateUpdated(fn (Get $get, Set $set) => self::updateHpp($get, $set)),
             ]);
+    }
+
+    public static function updateHpp(Get $get, Set $set): void
+    {
+        $recipeItems = $get('recipeItems') ?? [];
+        $totalHpp = 0;
+
+        foreach ($recipeItems as $item) {
+            if (!empty($item['raw_material_id']) && !empty($item['quantity_required'])) {
+                $material = RawMaterial::find($item['raw_material_id']);
+                if ($material) {
+                    $totalHpp += (float) $item['quantity_required'] * (float) $material->price_per_unit;
+                }
+            }
+        }
+
+        $set('base_price', $totalHpp);
     }
 
     public static function table(Table $table): Table
