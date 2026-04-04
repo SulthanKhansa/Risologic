@@ -39,18 +39,14 @@ class ProductResource extends Resource
                 TextInput::make('base_price')
                     ->numeric()
                     ->required()
+                    ->prefix('Rp')
                     ->step('0.01')
                     ->minValue(0)
-                    ->label('Harga Dasar Jual'),
+                    ->label('Harga Modal (HPP) per Biji')
+                    ->helperText('Gunakan harga modal dasar untuk perhitungan margin.'),
 
-                TextInput::make('hpp')
-                    ->label('HPP (Harga Pokok Penjualan)')
-                    ->numeric()
-                    ->disabled() // Auto calculated
-                    ->dehydrated() // Must be saved even if disabled to avoid null issues sometimes, wait actually it's fine
-                    ->prefix('Rp')
-                    ->default(0)
-                    ->helperText('Otomatis dihitung saat Produksi selesai berdasar resep.'),
+                // Removing redundant HPP field since base_price is now HPP
+
 
                 TextInput::make('current_stock')
                     ->numeric()
@@ -98,12 +94,10 @@ class ProductResource extends Resource
                 TextColumn::make('base_price')
                     ->formatStateUsing(fn ($state) => 'Rp ' . number_format($state ?? 0, 0, ',', '.'))
                     ->sortable()
-                    ->label('Harga Jual'),
+                    ->label('Modal (HPP)'),
 
-                TextColumn::make('hpp')
-                    ->formatStateUsing(fn ($state) => 'Rp ' . number_format($state ?? 0, 0, ',', '.'))
-                    ->sortable()
-                    ->label('HPP / Modal'),
+                // Removed redundant hpp column
+
 
                 TextColumn::make('current_stock')
                     ->numeric()
