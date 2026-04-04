@@ -14,9 +14,9 @@ class ProductionEventResource extends Resource
 {
     protected static ?string $model = ProductionEvent::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-fire';
+    protected static ?string $navigationIcon = 'heroicon-o-command-line';
     
-    protected static ?string $navigationGroup = 'Dapur & Operasional';
+    protected static ?string $navigationGroup = 'Produksi';
     protected static ?string $modelLabel = 'Produksi';
 
     public static function form(Form $form): Form

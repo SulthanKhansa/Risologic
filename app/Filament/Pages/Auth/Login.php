@@ -11,8 +11,10 @@ class Login extends BaseLogin
     {
         return TextInput::make('username')
             ->label('Username')
+            ->prefixIcon('heroicon-m-user') // Tambah ikon User
             ->required()
-            ->autocomplete();
+            ->autocomplete()
+            ->autofocus();
     }
 
     protected function getCredentialsFromFormData(array $data): array

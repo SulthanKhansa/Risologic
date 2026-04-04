@@ -10,6 +10,7 @@ use Filament\Pages;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\Support\Enums\MaxWidth;
 use Filament\View\PanelsRenderHook;
 use Filament\Widgets;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
@@ -28,31 +29,78 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->brandName('Risologic')
+            ->brandLogo(fn () => view('filament.branding.logo'))
+            ->favicon(asset('favicon.ico'))
             ->login(\App\Filament\Pages\Auth\Login::class)
             ->colors([
-                'primary' => Color::Orange, // Action Color 10%
-                'secondary' => Color::Slate, // Secondary (Navy-like)
-                'gray' => Color::Zinc, // Neutral Gray / White
+                'primary' => Color::Amber, // Golden Orange for Action
+                'secondary' => Color::Slate, // Professional Navy
+                'gray' => Color::Zinc, // Clean White/Gray
             ])
+            ->font('Outfit', url: 'https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap')
             ->renderHook(
                 PanelsRenderHook::HEAD_END,
                 fn (): string => '<style>
-                    /* 30% Secondary Color: Navy Header & Sidebar */
-                    .fi-sidebar { background-color: #0f172a !important; border-right: none !important; }
-                    .fi-sidebar-item-label, .fi-sidebar-group-label { color: #cbd5e1 !important; }
-                    .fi-sidebar-item-icon { color: #94a3b8 !important; }
+                    /* Premium Look & Rule 60-30-10 */
+                    :root {
+                        --sidebar-width: 280px;
+                    }
                     
-                    /* Sidebar Active State (Orange/Emas highlight on Navy) */
-                    .fi-sidebar-item-active { background-color: #1e293b !important; }
-                    .fi-sidebar-item-active .fi-sidebar-item-label { color: #f59e0b !important; font-weight: bold; }
-                    .fi-sidebar-item-active .fi-sidebar-item-icon { color: #f59e0b !important; }
+                    /* 30% Secondary Color: Deep Professional Navy */
+                    .fi-sidebar { 
+                        background-color: #0f172a !important; 
+                        box-shadow: 4px 0 24px rgba(0,0,0,0.1);
+                        border-right: none !important;
+                    }
+                    .fi-sidebar-header {
+                        padding: 1.5rem !important;
+                        border-bottom: 1px solid rgba(255,255,255,0.05);
+                    }
+                    .fi-sidebar-item-label, .fi-sidebar-group-label { 
+                        color: #94a3b8 !important; 
+                        letter-spacing: 0.025em;
+                    }
+                    .fi-sidebar-item-icon { 
+                        color: #64748b !important; 
+                        transition: color 0.2s;
+                    }
                     
-                    /* Topbar Navy */
-                    .fi-topbar { background-color: #0f172a !important; border-bottom: none !important; }
-                    .fi-topbar * { color: #e2e8f0 !important; }
+                    /* Active Menu Item: Glowing Amber/Gold */
+                    .fi-sidebar-item-active { 
+                        background: linear-gradient(to right, rgba(245, 158, 11, 0.1), transparent) !important;
+                        border-right: 3px solid #f59e0b;
+                    }
+                    .fi-sidebar-item-active .fi-sidebar-item-label { 
+                        color: #f59e0b !important; 
+                        font-weight: 700;
+                    }
+                    .fi-sidebar-item-active .fi-sidebar-item-icon { 
+                        color: #f59e0b !important; 
+                    }
+                    
+                    /* Topbar Premium Styling */
+                    .fi-topbar { 
+                        background-color: rgba(255,255,255,0.8) !important; 
+                        backdrop-filter: blur(12px);
+                        border-bottom: 1px solid #f1f5f9 !important;
+                    }
+                    .fi-topbar-header * { color: #1e293b !important; }
 
-                    /* 60% Primary Color Background */
-                    .fi-main { background-color: #f8fafc !important; } /* Netral Putih/Abu-Abu Terang */
+                    /* 60% Primary Color: Neutral & Clean Canvas */
+                    .fi-main { 
+                        background-color: #f8fafc !important; 
+                        min-height: 100vh;
+                    }
+
+                    /* Rounded UI Elements for Modern Look */
+                    .fi-section, .fi-card, .fi-modal-window { 
+                        border-radius: 1rem !important;
+                        border: 1px solid #f1f5f9 !important;
+                        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1) !important;
+                    }
+                    
+                    /* Smooth Transitions */
+                    * { transition: all 0.2s ease-in-out; }
                 </style>',
             )
             ->darkMode(false)

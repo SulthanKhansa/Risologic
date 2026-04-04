@@ -14,8 +14,8 @@ class RawMaterialResource extends Resource
 {
     protected static ?string $model = RawMaterial::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-list-bullet';
-    protected static ?string $navigationGroup = 'Dapur & Operasional';
+    protected static ?string $navigationIcon = 'heroicon-o-shopping-cart';
+    protected static ?string $navigationGroup = 'Inventaris';
     protected static ?string $modelLabel = 'Bahan Baku';
 
     public static function form(Form $form): Form

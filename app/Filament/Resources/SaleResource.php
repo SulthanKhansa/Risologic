@@ -19,7 +19,9 @@ class SaleResource extends Resource
 {
     protected static ?string $model = Sale::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-banknotes';
+    protected static ?string $navigationGroup = 'Penjualan';
+    protected static ?string $modelLabel = 'Penjualan';
 
     public static function form(Form $form): Form
     {
@@ -97,12 +99,12 @@ class SaleResource extends Resource
                     ->label('Qty'),
 
                 TextColumn::make('total_price')
-                    ->money('IDR')
+                    ->formatStateUsing(fn ($state) => 'Rp ' . number_format($state ?? 0, 0, ',', '.'))
                     ->sortable()
                     ->label('Total'),
 
                 TextColumn::make('net_income')
-                    ->money('IDR')
+                    ->formatStateUsing(fn ($state) => 'Rp ' . number_format($state ?? 0, 0, ',', '.'))
                     ->sortable()
                     ->label('Net Income (Cuan)'),
 
