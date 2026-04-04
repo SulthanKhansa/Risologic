@@ -4,7 +4,6 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 WORKDIR /app
 COPY . .
 RUN composer install --no-dev --optimize-autoloader --no-interaction --ignore-platform-reqs
-RUN cp .env.example .env && php artisan key:generate
 RUN npm install && npm run build
 RUN php artisan filament:assets
 RUN php artisan config:clear && php artisan view:clear
