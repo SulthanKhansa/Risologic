@@ -23,6 +23,7 @@ class Login extends BaseLogin
             ->label('Password')
             ->prefixIcon('heroicon-m-lock-closed')
             ->password()
+            ->revealable(false) // Hilangkan mata agar TAB langsung fokus
             ->required();
     }
 
