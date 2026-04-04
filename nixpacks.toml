@@ -14,12 +14,20 @@ nixPkgs = [
   'php84Extensions.intl',
   'php84Extensions.gd',
   'php84Extensions.opcache',
+  'php84Extensions.sodium',
   'composer'
+]
+
+[phases.install]
+cmds = [
+  'composer install --optimize-autoloader --ignore-platform-reqs --no-interaction'
 ]
 
 [phases.build]
 cmds = [
-  'composer install --no-dev --optimize-autoloader --ignore-platform-reqs'
+  'php artisan config:cache',
+  'php artisan route:cache',
+  'php artisan view:cache'
 ]
 
 [start]
