@@ -15,7 +15,11 @@ class Sale extends Model
         'product_id',
         'qty',
         'total_price',
+        'admin_fee',
         'net_income',
+        'total_cost',
+        'gross_profit',
+        'margin_percentage',
         'status',
         'recorded_by',
     ];
@@ -24,7 +28,11 @@ class Sale extends Model
         'channel' => 'string',
         'qty' => 'integer',
         'total_price' => 'decimal:2',
+        'admin_fee' => 'decimal:2',
         'net_income' => 'decimal:2',
+        'total_cost' => 'decimal:2',
+        'gross_profit' => 'decimal:2',
+        'margin_percentage' => 'decimal:2',
         'status' => 'string',
     ];
 
@@ -50,18 +58,32 @@ class Sale extends Model
     protected static function booted(): void
     {
         static::creating(function (self $sale) {
-            // Calculate net_income based on channel
-            if ($sale->channel === 'gofood') {
-                // Deduct 20% commission for gofood
-                $sale->net_income = $sale->total_price * 0.80;
-            } else {
-                // For stand and po channels, net_income equals total_price
-                $sale->net_income = $sale->total_price;
-            }
-
-            // Get the product and subtract qty from current_stock
+            // Get the product to fetch base_price (HPP)
             $product = Product::find($sale->product_id);
+
             if ($product) {
+                // 1. Calculate total_cost = HPP * qty
+                $sale->total_cost = $product->base_price * $sale->qty;
+
+                // 2. Default admin_fee if online and not set
+                if ($sale->channel === 'online' && ($sale->admin_fee === null || $sale->admin_fee == 0)) {
+                    $sale->admin_fee = $sale->total_price * 0.20;
+                }
+
+                // 3. Calculate net_income = total_price - admin_fee
+                $sale->net_income = $sale->total_price - ($sale->admin_fee ?? 0);
+
+                // 4. Calculate gross_profit = net_income - total_cost
+                $sale->gross_profit = $sale->net_income - $sale->total_cost;
+
+                // 5. Calculate margin_percentage = (gross_profit / net_income) * 100
+                if ($sale->net_income > 0) {
+                    $sale->margin_percentage = ($sale->gross_profit / $sale->net_income) * 100;
+                } else {
+                    $sale->margin_percentage = 0;
+                }
+
+                // 6. Subtract qty from product current_stock
                 $product->decrement('current_stock', $sale->qty);
             }
         });

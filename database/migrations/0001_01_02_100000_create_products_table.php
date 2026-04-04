@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name')->unique();
             $table->string('slug')->unique();
-            $table->decimal('base_price', 12, 2);
+            $table->decimal('base_price', 12, 2)->comment('HPP per biji');
             $table->integer('current_stock')->default(0);
             $table->timestamps();
         });

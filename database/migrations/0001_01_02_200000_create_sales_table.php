@@ -13,11 +13,15 @@ return new class extends Migration
     {
         Schema::create('sales', function (Blueprint $table) {
             $table->id();
-            $table->enum('channel', ['stand', 'po', 'gofood']);
+            $table->enum('channel', ['stand', 'po', 'online']);
             $table->foreignId('product_id')->constrained('products')->onDelete('cascade');
             $table->integer('qty');
             $table->decimal('total_price', 12, 2);
+            $table->decimal('admin_fee', 12, 2)->default(0);
             $table->decimal('net_income', 12, 2)->default(0);
+            $table->decimal('total_cost', 12, 2)->default(0);
+            $table->decimal('gross_profit', 12, 2)->default(0);
+            $table->decimal('margin_percentage', 5, 2)->default(0);
             $table->enum('status', ['pending', 'paid', 'cancelled'])->default('pending');
             $table->foreignId('recorded_by')->constrained('users')->onDelete('cascade');
             $table->timestamps();
