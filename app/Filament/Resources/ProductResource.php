@@ -102,6 +102,8 @@ class ProductResource extends Resource
                 TextColumn::make('current_stock')
                     ->numeric()
                     ->sortable()
+                    ->badge()
+                    ->color(fn (int $state): string => $state < 50 ? 'danger' : 'success')
                     ->label('Stok'),
 
                 TextColumn::make('created_at')
