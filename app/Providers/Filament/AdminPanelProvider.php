@@ -31,7 +31,7 @@ class AdminPanelProvider extends PanelProvider
             ->login()
             ->colors([
                 'primary' => Color::Orange, // Action Color 10%
-                'secondary' => Color::Navy, // Secondary
+                'secondary' => Color::Slate, // Secondary (Navy-like)
                 'gray' => Color::Zinc, // Neutral Gray / White
             ])
             ->renderHook(
