@@ -87,5 +87,35 @@ class Sale extends Model
                 $product->decrement('current_stock', $sale->qty);
             }
         });
+
+        static::updated(function (self $sale) {
+            // Handle stock adjustment if qty or product_id changed
+            if ($sale->isDirty(['qty', 'product_id'])) {
+                $oldProductId = $sale->getOriginal('product_id');
+                $oldQty = $sale->getOriginal('qty');
+
+                // If product changed
+                if ($sale->isDirty('product_id')) {
+                    // Restore old product stock
+                    $oldProduct = Product::find($oldProductId);
+                    if ($oldProduct) {
+                        $oldProduct->increment('current_stock', $oldQty);
+                    }
+                    // Deduct from new product stock
+                    $sale->product->decrement('current_stock', $sale->qty);
+                } else {
+                    // Same product, adjust by difference
+                    $diffQty = $sale->qty - $oldQty;
+                    $sale->product->decrement('current_stock', $diffQty);
+                }
+            }
+        });
+
+        static::deleted(function (self $sale) {
+            // Restore stock on delete
+            if ($sale->product) {
+                $sale->product->increment('current_stock', $sale->qty);
+            }
+        });
     }
 }

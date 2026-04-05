@@ -28,20 +28,24 @@ class ProductionEventResource extends Resource
                     ->required()
                     ->searchable()
                     ->preload()
-                    ->label('Finished Product'),
+                    ->label('Finished Product')
+                    ->disabled(fn (?ProductionEvent $record) => $record && $record->status === 'completed'),
                 Forms\Components\TextInput::make('quantity_produced')
                     ->required()
                     ->numeric()
                     ->minValue(1)
-                    ->label('Quantity Produced'),
+                    ->label('Quantity Produced')
+                    ->disabled(fn (?ProductionEvent $record) => $record && $record->status === 'completed'),
                 Forms\Components\DatePicker::make('production_date')
                     ->required()
                     ->default(now())
-                    ->label('Production Date'),
+                    ->label('Production Date')
+                    ->disabled(fn (?ProductionEvent $record) => $record && $record->status === 'completed'),
                 Forms\Components\Select::make('status')
                     ->options([
-                        'completed' => 'Completed (Deduct Raw Materials Now)',
+                        'completed' => 'Completed',
                         'draft' => 'Draft / Plan',
+                        'cancelled' => 'Cancelled',
                     ])
                     ->default('completed')
                     ->required()
@@ -73,6 +77,7 @@ class ProductionEventResource extends Resource
                     ->colors([
                         'success' => 'completed',
                         'warning' => 'draft',
+                        'danger' => 'cancelled',
                     ])
                     ->label('Status'),
                 Tables\Columns\TextColumn::make('created_at')

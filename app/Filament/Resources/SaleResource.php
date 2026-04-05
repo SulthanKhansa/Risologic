@@ -34,12 +34,13 @@ class SaleResource extends Resource
                     ->schema([
                         Select::make('channel')
                             ->options([
-                                'stand' => 'Penjualan Stand',
-                                'po' => 'Purchase Order',
-                                'online' => 'Online (Grab/Go/Shopee)',
+                                'stand' => 'Stand',
+                                'online' => 'Online',
+                                'pre_order' => 'Pre-Order',
                             ])
                             ->required()
                             ->live()
+                            ->disabled(fn (?Sale $record) => $record && in_array($record->status, ['paid', 'cancelled']))
                             ->afterStateUpdated(function (Get $get, Set $set, ?string $state) {
                                 if ($state === 'online') {
                                     $totalPrice = (float) ($get('total_price') ?? 0);
@@ -57,6 +58,7 @@ class SaleResource extends Resource
                             ->searchable()
                             ->preload()
                             ->live()
+                            ->disabled(fn (?Sale $record) => $record && in_array($record->status, ['paid', 'cancelled']))
                             ->afterStateUpdated(fn (Get $get, Set $set) => self::updateCalculations($get, $set))
                             ->label('Produk'),
 
@@ -65,6 +67,7 @@ class SaleResource extends Resource
                             ->required()
                             ->default(1)
                             ->live(onBlur: true)
+                            ->disabled(fn (?Sale $record) => $record && in_array($record->status, ['paid', 'cancelled']))
                             ->afterStateUpdated(fn (Get $get, Set $set) => self::updateCalculations($get, $set))
                             ->label('Quantity'),
 
@@ -73,6 +76,7 @@ class SaleResource extends Resource
                             ->prefix('Rp')
                             ->required()
                             ->live(onBlur: true)
+                            ->disabled(fn (?Sale $record) => $record && in_array($record->status, ['paid', 'cancelled']))
                             ->afterStateUpdated(function (Get $get, Set $set, ?string $state) {
                                 if ($get('channel') === 'online') {
                                     $set('admin_fee', (float) ($state ?? 0) * 0.20);
@@ -88,6 +92,7 @@ class SaleResource extends Resource
                             ->numeric()
                             ->prefix('Rp')
                             ->live(onBlur: true)
+                            ->disabled(fn (?Sale $record) => $record && in_array($record->status, ['paid', 'cancelled']))
                             ->afterStateUpdated(fn (Get $get, Set $set) => self::updateCalculations($get, $set))
                             ->label('Biaya Admin / Komisi'),
 
@@ -167,8 +172,8 @@ class SaleResource extends Resource
                 BadgeColumn::make('channel')
                     ->colors([
                         'success' => 'stand',
-                        'info' => 'po',
                         'warning' => 'online',
+                        'info' => 'pre_order',
                     ])
                     ->label('Channel'),
 
@@ -221,8 +226,8 @@ class SaleResource extends Resource
                 Tables\Filters\SelectFilter::make('channel')
                     ->options([
                         'stand' => 'Stand',
-                        'po' => 'PO',
                         'online' => 'Online',
+                        'pre_order' => 'Pre-Order',
                     ]),
             ])
             ->actions([

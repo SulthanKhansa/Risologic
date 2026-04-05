@@ -46,7 +46,7 @@ class ProductResource extends Resource
                     ->step('0.01')
                     ->minValue(0)
                     ->label('Modal (HPP) per Pcs')
-                    ->helperText('This value will auto-calculate based on recipe below, but stay manual-editable.')
+                    ->helperText('This value will auto-calculate based on BoM below, but stay manual-editable.')
                     ->id('base_price_field'),
 
                 // Removing redundant HPP field since base_price is now HPP
@@ -79,8 +79,8 @@ class ProductResource extends Resource
                     ])
                     ->columns(2)
                     ->columnSpanFull()
-                    ->label('Recipe (Materials for 1 Single Piece)')
-                    ->addActionLabel('Add Material to Recipe')
+                    ->label('Bill of Materials (BoM) - Kebutuhan Bahan per 1 Pcs')
+                    ->addActionLabel('Tambah Bahan ke BoM')
                     ->live()
                     ->afterStateUpdated(fn (Get $get, Set $set) => self::updateHpp($get, $set)),
             ]);
