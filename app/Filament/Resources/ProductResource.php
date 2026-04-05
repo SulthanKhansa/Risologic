@@ -19,8 +19,8 @@ class ProductResource extends Resource
 {
     protected static ?string $model = Product::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-sparkles';
-    protected static ?string $navigationGroup = 'Sales';
+    protected static ?string $navigationIcon = 'heroicon-o-gift';
+    protected static ?string $navigationGroup = 'Inventory';
 
     public static function form(Form $form): Form
     {
@@ -56,9 +56,13 @@ class ProductResource extends Resource
                     ->numeric()
                     ->required()
                     ->integer()
+                    ->integer()
                     ->minValue(0)
                     ->label('Available Stock'),
-                
+            ])->columns(['sm' => 1, 'md' => 2]),
+
+                Forms\Components\Section::make('Bill of Materials')
+                    ->schema([
                 Forms\Components\Repeater::make('recipeItems')
                     ->relationship('recipeItems')
                     ->schema([
@@ -77,12 +81,13 @@ class ProductResource extends Resource
                             ->live(onBlur: true)
                             ->afterStateUpdated(fn (Get $get, Set $set) => self::updateHpp($get, $set)),
                     ])
-                    ->columns(2)
+                    ->columns(['sm' => 1, 'md' => 2])
                     ->columnSpanFull()
                     ->label('Bill of Materials (BoM) - Kebutuhan Bahan per 1 Pcs')
                     ->addActionLabel('Tambah Bahan ke BoM')
                     ->live()
                     ->afterStateUpdated(fn (Get $get, Set $set) => self::updateHpp($get, $set)),
+                    ]),
             ]);
     }
 
@@ -137,6 +142,7 @@ class ProductResource extends Resource
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->label('Created At'),
             ])
             ->filters([

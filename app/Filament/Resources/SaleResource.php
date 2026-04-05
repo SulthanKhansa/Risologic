@@ -24,6 +24,7 @@ class SaleResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-banknotes';
     protected static ?string $navigationGroup = 'Sales';
+    protected static ?int $navigationSort = 1;
     protected static ?string $modelLabel = 'Penjualan';
 
     public static function form(Form $form): Form
@@ -84,7 +85,7 @@ class SaleResource extends Resource
                                 self::updateCalculations($get, $set);
                             })
                             ->label('Total Harga Jual'),
-                    ])->columns(2),
+                    ])->columns(['sm' => 1, 'md' => 2]),
 
                 Forms\Components\Section::make('Rincian Biaya & Profit')
                     ->schema([
@@ -113,7 +114,7 @@ class SaleResource extends Resource
 
                         Forms\Components\Hidden::make('gross_profit_hidden'),
                         Forms\Components\Hidden::make('margin_hidden'),
-                    ])->columns(2),
+                    ])->columns(['sm' => 1, 'md' => 2]),
 
                 Forms\Components\Section::make('Status & Petugas')
                     ->schema([
@@ -132,7 +133,7 @@ class SaleResource extends Resource
                             ->default(auth()->id())
                             ->required()
                             ->label('Pencatat'),
-                    ])->columns(2),
+                    ])->columns(['sm' => 1, 'md' => 2]),
             ]);
     }
 
@@ -189,12 +190,14 @@ class SaleResource extends Resource
                 TextColumn::make('net_income')
                     ->formatStateUsing(fn ($state) => 'Rp ' . number_format($state ?? 0, 0, ',', '.'))
                     ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->summarize(Tables\Columns\Summarizers\Sum::make()->label('Total Net'))
                     ->label('Net Income'),
 
                 TextColumn::make('gross_profit')
                     ->formatStateUsing(fn ($state) => 'Rp ' . number_format($state ?? 0, 0, ',', '.'))
                     ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->label('Cuan Bersih'),
 
                 TextColumn::make('margin_percentage')
@@ -220,6 +223,7 @@ class SaleResource extends Resource
 
                 TextColumn::make('created_at')
                     ->dateTime()
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->label('Waktu Pencatatan'),
             ])
             ->filters([

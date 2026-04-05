@@ -13,4 +13,4 @@ RUN php artisan config:clear && php artisan view:clear
 ENV APP_ENV=production
 ENV APP_DEBUG=false
 
-CMD php artisan config:clear && php artisan migrate --force && php artisan db:seed --class=AdminSeeder --force && php artisan config:cache && php artisan route:cache && php artisan view:cache && php artisan serve --host=0.0.0.0 --port=${PORT:-8080}
+CMD php artisan config:clear && php artisan migrate --force && php artisan shield:generate --all && php artisan db:seed --class=AdminSeeder --force && php artisan config:cache && php artisan route:cache && php artisan view:cache && php artisan serve --host=0.0.0.0 --port=${PORT:-8080}

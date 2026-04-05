@@ -49,7 +49,7 @@ class PurchaseResource extends Resource
                             ->prefix('Rp')
                             ->readonly()
                             ->default(0),
-                    ])->columns(2),
+                    ])->columns(['sm' => 1, 'md' => 2]),
 
                 Forms\Components\Section::make('Purchase Items')
                     ->schema([
@@ -89,7 +89,7 @@ class PurchaseResource extends Resource
                                     ->prefix('Rp')
                                     ->readonly(),
                             ])
-                            ->columns(4)
+                            ->columns(['sm' => 1, 'md' => 4])
                             ->live()
                             ->afterStateUpdated(function (Set $set, Forms\Get $get) {
                                 $items = $get('items') ?? [];
@@ -114,7 +114,8 @@ class PurchaseResource extends Resource
                     ->date()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('supplier.name')
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('total_amount')
                     ->formatStateUsing(fn ($state) => 'Rp ' . number_format($state ?? 0, 0, ',', '.'))
                     ->sortable(),
@@ -124,6 +125,10 @@ class PurchaseResource extends Resource
                         'success' => 'completed',
                         'danger' => 'cancelled',
                     ]),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 //

@@ -84,6 +84,10 @@ class ProductionEventResource extends Resource
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('notes')
+                    ->limit(20)
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->label('Notes'),
             ])
             ->filters([
                 //

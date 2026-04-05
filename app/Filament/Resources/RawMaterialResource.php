@@ -16,6 +16,7 @@ class RawMaterialResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-shopping-cart';
     protected static ?string $navigationGroup = 'Inventory';
+    protected static ?int $navigationSort = 10;
     protected static ?string $modelLabel = 'Raw Material';
 
     public static function form(Form $form): Form
@@ -39,7 +40,7 @@ class RawMaterialResource extends Resource
                     ->numeric()
                     ->label('Current Stock (Units)')
                     ->default(0),
-            ]);
+            ])->columns(['sm' => 1, 'md' => 2]);
     }
 
     public static function table(Table $table): Table
