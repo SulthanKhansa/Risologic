@@ -16,6 +16,7 @@ class SupplierResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-truck';
     protected static ?string $navigationGroup = 'Procurement';
+    protected static ?int $navigationSort = 2;
 
     public static function form(Form $form): Form
     {
@@ -26,14 +27,20 @@ class SupplierResource extends Resource
                         Forms\Components\TextInput::make('name')
                             ->required()
                             ->maxLength(255),
-                        Forms\Components\TextInput::make('contact_person')
-                            ->maxLength(255),
-                        Forms\Components\TextInput::make('phone')
-                            ->tel()
-                            ->maxLength(255),
                         Forms\Components\Textarea::make('address')
                             ->maxLength(65535)
                             ->columnSpanFull(),
+                        
+                        Forms\Components\Section::make('Daftar Barang Belanja')
+                            ->description('Pilih bahan baku apa saja yang tersedia/bisa dibeli di vendor ini.')
+                            ->schema([
+                                Forms\Components\CheckboxList::make('rawMaterials')
+                                    ->relationship('rawMaterials', 'name')
+                                    ->columns(2)
+                                    ->gridDirection('vertical')
+                                    ->required()
+                                    ->label('Bahan Baku yang Tersedia'),
+                            ]),
                     ])
             ]);
     }
@@ -43,11 +50,13 @@ class SupplierResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('contact_person')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('phone')
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('rawMaterials_count')
+                    ->counts('rawMaterials')
+                    ->label('Jumlah Barang'),
+                Tables\Columns\TextColumn::make('address')
+                    ->limit(50),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

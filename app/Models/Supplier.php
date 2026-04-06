@@ -12,13 +12,16 @@ class Supplier extends Model
 
     protected $fillable = [
         'name',
-        'contact_person',
-        'phone',
         'address',
     ];
 
-    public function purchases(): HasMany
+    public function rawMaterials(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
-        return $this->hasMany(Purchase::class);
+        return $this->belongsToMany(RawMaterial::class);
+    }
+
+    public function purchaseItems(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(PurchaseItem::class);
     }
 }

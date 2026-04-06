@@ -16,7 +16,7 @@ class RawMaterialResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-shopping-cart';
     protected static ?string $navigationGroup = 'Inventory';
-    protected static ?int $navigationSort = 10;
+    protected static ?int $navigationSort = 2;
     protected static ?string $modelLabel = 'Raw Material';
 
     public static function form(Form $form): Form
@@ -40,6 +40,30 @@ class RawMaterialResource extends Resource
                     ->numeric()
                     ->label('Current Stock (Units)')
                     ->default(0),
+
+                Forms\Components\Section::make('Kalkulator Harga Satuan (Sangat Disarankan)')
+                    ->description('Gunakan ini agar Anda tidak perlu pusing menghitung harga per mili/gram secara manual.')
+                    ->schema([
+                        Forms\Components\TextInput::make('pack_price')
+                            ->label('Harga Per Kemasan (Misal: 1 Botol)')
+                            ->numeric()
+                            ->prefix('Rp')
+                            ->live()
+                            ->afterStateUpdated(function (Forms\Get $get, Forms\Set $set) {
+                                $price = (float) ($get('pack_price') ?? 0);
+                                $size = (float) ($get('pack_size') ?? 0);
+                                if ($size > 0) $set('price_per_unit', $price / $size);
+                            }),
+                        Forms\Components\TextInput::make('pack_size')
+                            ->label('Isi Per Kemasan (Misal: 335)')
+                            ->numeric()
+                            ->live()
+                            ->afterStateUpdated(function (Forms\Get $get, Forms\Set $set) {
+                                $price = (float) ($get('pack_price') ?? 0);
+                                $size = (float) ($get('pack_size') ?? 0);
+                                if ($size > 0) $set('price_per_unit', $price / $size);
+                            }),
+                    ])->columns(['sm' => 1, 'md' => 2]),
             ])->columns(['sm' => 1, 'md' => 2]);
     }
 

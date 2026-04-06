@@ -132,6 +132,19 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->plugins([
                 \BezhanSalleh\FilamentShield\FilamentShieldPlugin::make(),
+            ])
+            ->navigationGroups([
+                \Filament\Navigation\NavigationGroup::make()
+                     ->label('Sales'),
+                \Filament\Navigation\NavigationGroup::make()
+                    ->label('Procurement'),
+                \Filament\Navigation\NavigationGroup::make()
+                    ->label('Production'),
+                \Filament\Navigation\NavigationGroup::make()
+                    ->label('Inventory'),
+                \Filament\Navigation\NavigationGroup::make()
+                    ->label('Filament Shield')
+                    ->collapsed(),
             ]);
     }
 }

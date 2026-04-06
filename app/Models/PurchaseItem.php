@@ -13,15 +13,12 @@ class PurchaseItem extends Model
     protected $fillable = [
         'purchase_id',
         'raw_material_id',
+        'supplier_id',
         'qty',
         'unit_price',
+        'pack_price',
+        'pack_size',
         'subtotal',
-    ];
-
-    protected $casts = [
-        'qty' => 'decimal:2',
-        'unit_price' => 'decimal:2',
-        'subtotal' => 'decimal:2',
     ];
 
     public function purchase(): BelongsTo
@@ -32,5 +29,10 @@ class PurchaseItem extends Model
     public function rawMaterial(): BelongsTo
     {
         return $this->belongsTo(RawMaterial::class);
+    }
+
+    public function supplier(): BelongsTo
+    {
+        return $this->belongsTo(Supplier::class);
     }
 }

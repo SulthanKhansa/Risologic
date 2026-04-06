@@ -84,8 +84,21 @@ class ProductResource extends Resource
                                     ->label('Usage qty')
                                     ->live(onBlur: true)
                                     ->afterStateUpdated(fn (Get $get, Set $set) => self::updateHpp($get, $set)),
+                                Forms\Components\Placeholder::make('ingredient_cost')
+                                    ->label('Estimasi Biaya')
+                                    ->content(function (Get $get) {
+                                        $materialId = $get('raw_material_id');
+                                        $qty = (float) ($get('quantity_required') ?? 0);
+                                        if ($materialId && $qty > 0) {
+                                            $material = \App\Models\RawMaterial::find($materialId);
+                                            if ($material) {
+                                                return 'Rp ' . number_format($qty * $material->price_per_unit, 0, ',', '.');
+                                            }
+                                        }
+                                        return 'Rp 0';
+                                    }),
                             ])
-                            ->columns(['sm' => 1, 'md' => 2])
+                            ->columns(['sm' => 1, 'md' => 3])
                             ->columnSpanFull()
                             ->label('Bill of Materials (BoM) - Kebutuhan Bahan per 1 Pcs')
                             ->addActionLabel('Tambah Bahan ke BoM')

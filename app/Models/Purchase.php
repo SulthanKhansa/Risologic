@@ -13,7 +13,6 @@ class Purchase extends Model
     use HasFactory;
 
     protected $fillable = [
-        'supplier_id',
         'purchase_date',
         'total_amount',
         'status',
@@ -25,10 +24,7 @@ class Purchase extends Model
         'total_amount' => 'decimal:2',
     ];
 
-    public function supplier(): BelongsTo
-    {
-        return $this->belongsTo(Supplier::class);
-    }
+    // Note: supplier() is now on PurchaseItem to allow multi-vendor per purchase record.
 
     public function items(): HasMany
     {

@@ -26,7 +26,7 @@ class SaleResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-banknotes';
     protected static ?string $navigationGroup = 'Sales';
     protected static ?int $navigationSort = 1;
-    protected static ?string $modelLabel = 'Penjualan';
+    protected static ?string $modelLabel = 'Sale';
 
     public static function canViewAny(): bool { return true; }
     public static function canCreate(): bool { return true; }
@@ -37,7 +37,7 @@ class SaleResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\Section::make('Informasi Transaksi')
+                Forms\Components\Section::make('Transaction Info')
                     ->schema([
                         Select::make('channel')
                             ->options([
@@ -57,7 +57,7 @@ class SaleResource extends Resource
                                 }
                                 self::updateCalculations($get, $set);
                             })
-                            ->label('Channel Penjualan'),
+                            ->label('Sales Channel'),
 
                         Select::make('product_id')
                             ->relationship('product', 'name')
@@ -67,7 +67,7 @@ class SaleResource extends Resource
                             ->live()
                             ->disabled(fn (?Sale $record) => $record && in_array($record->status, ['paid', 'cancelled']))
                             ->afterStateUpdated(fn (Get $get, Set $set) => self::updateCalculations($get, $set))
-                            ->label('Produk'),
+                            ->label('Product'),
 
                         TextInput::make('qty')
                             ->numeric()
@@ -90,10 +90,10 @@ class SaleResource extends Resource
                                 }
                                 self::updateCalculations($get, $set);
                             })
-                            ->label('Total Harga Jual'),
+                            ->label('Total Sale Price'),
                     ])->columns(['sm' => 1, 'md' => 2]),
 
-                Forms\Components\Section::make('Rincian Biaya & Profit')
+                Forms\Components\Section::make('Costs & Profit Details')
                     ->schema([
                         TextInput::make('admin_fee')
                             ->numeric()
@@ -101,17 +101,17 @@ class SaleResource extends Resource
                             ->live(onBlur: true)
                             ->disabled(fn (?Sale $record) => $record && in_array($record->status, ['paid', 'cancelled']))
                             ->afterStateUpdated(fn (Get $get, Set $set) => self::updateCalculations($get, $set))
-                            ->label('Biaya Admin / Komisi'),
+                            ->label('Admin Fee / Commission'),
 
                         TextInput::make('net_income')
                             ->numeric()
                             ->prefix('Rp')
                             ->disabled()
                             ->dehydrated()
-                            ->label('Pendapatan Bersih (Net)'),
+                            ->label('Net Income'),
 
                         Forms\Components\Placeholder::make('profit_prediction')
-                            ->label('Estimasi Cuan (Gross Profit)')
+                            ->label('Estimated Gross Profit')
                             ->content(function (Get $get) {
                                 $grossProfit = (float) ($get('gross_profit_hidden') ?? 0);
                                 $margin = (float) ($get('margin_hidden') ?? 0);
@@ -122,7 +122,7 @@ class SaleResource extends Resource
                         Forms\Components\Hidden::make('margin_hidden'),
                     ])->columns(['sm' => 1, 'md' => 2]),
 
-                Forms\Components\Section::make('Status & Petugas')
+                Forms\Components\Section::make('Status & Recorder')
                     ->schema([
                         Select::make('status')
                             ->options([
@@ -132,13 +132,13 @@ class SaleResource extends Resource
                             ])
                             ->default('paid')
                             ->required()
-                            ->label('Status'),
+                            ->label('Payment Status'),
 
                         Select::make('recorded_by')
                             ->relationship('recordedBy', 'name')
                             ->default(auth()->id())
                             ->required()
-                            ->label('Pencatat'),
+                            ->label('Recorded By'),
                     ])->columns(['sm' => 1, 'md' => 2]),
             ]);
     }
@@ -174,7 +174,7 @@ class SaleResource extends Resource
 
                 TextColumn::make('product.name')
                     ->searchable()
-                    ->label('Produk'),
+                    ->label('Product'),
 
                 BadgeColumn::make('channel')
                     ->colors([
@@ -200,14 +200,14 @@ class SaleResource extends Resource
                     ->summarize(Tables\Columns\Summarizers\Sum::make()->label('Total Net'))
                     ->label('Net Income'),
 
-                TextColumn::make('gross_profit')
-                    ->formatStateUsing(fn ($state) => 'Rp ' . number_format($state ?? 0, 0, ',', '.'))
+                TextColumn::make('gross_profit_hidden')
+                    ->formatStateUsing(fn ($state) => 'Rp ' . number_format((float) $state, 0, ',', '.'))
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true)
-                    ->label('Cuan Bersih'),
+                    ->label('Gross Profit'),
 
-                TextColumn::make('margin_percentage')
-                    ->formatStateUsing(fn ($state) => number_format($state ?? 0, 1) . '%')
+                TextColumn::make('margin_hidden')
+                    ->formatStateUsing(fn ($state) => number_format((float) $state, 1) . '%')
                     ->badge()
                     ->color(fn (string $state): string => match (true) {
                         (float) $state >= 30 => 'success',
@@ -225,12 +225,12 @@ class SaleResource extends Resource
                     ->label('Status'),
 
                 TextColumn::make('recordedBy.name')
-                    ->label('Pencatat'),
+                    ->label('Recorded By'),
 
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->toggleable(isToggledHiddenByDefault: true)
-                    ->label('Waktu Pencatatan'),
+                    ->label('Recording Time'),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('channel')
