@@ -16,6 +16,7 @@ use Filament\Tables\Columns\BadgeColumn;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
 use App\Models\Product;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 
 class SaleResource extends Resource
@@ -26,6 +27,11 @@ class SaleResource extends Resource
     protected static ?string $navigationGroup = 'Sales';
     protected static ?int $navigationSort = 1;
     protected static ?string $modelLabel = 'Penjualan';
+
+    public static function canViewAny(): bool { return true; }
+    public static function canCreate(): bool { return true; }
+    public static function canEdit(Model $record): bool { return true; }
+    public static function canDelete(Model $record): bool { return true; }
 
     public static function form(Form $form): Form
     {
