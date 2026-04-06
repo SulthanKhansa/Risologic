@@ -64,12 +64,12 @@ return [
 
         'pgsql' => [
             'driver' => 'pgsql',
-            'url' => trim(str_replace('"', '', env('DB_INTERNAL_URL', env('DATABASE_URL')))),
-            'host' => trim(str_replace('"', '', env('DB_HOST', env('PGHOST', env('HOST'))))),
+            'url' => trim(str_replace('"', '', env('DB_INTERNAL_URL', env('DATABASE_URL', '')))),
+            'host' => trim(str_replace('"', '', env('DB_HOST', env('PGHOST', env('HOST', ''))))),
             'port' => trim(str_replace('"', '', env('DB_PORT', env('PGPORT', env('PORT_DB', '5432'))))),
-            'database' => trim(str_replace('"', '', env('DB_DATABASE', env('PGDATABASE', env('DB_NAME'))))),
-            'username' => trim(str_replace('"', '', env('DB_USERNAME', env('PGUSER', env('DB_USER'))))),
-            'password' => trim(str_replace('"', '', env('DB_PASSWORD', env('PGPASSWORD', env('DB_PASS'))))),
+            'database' => trim(str_replace('"', '', env('DB_DATABASE', env('PGDATABASE', env('DB_NAME', ''))))),
+            'username' => trim(str_replace('"', '', env('DB_USERNAME', env('PGUSER', env('DB_USER', ''))))),
+            'password' => trim(str_replace('"', '', env('DB_PASSWORD', env('PGPASSWORD', env('DB_PASS', ''))))),
             'charset' => 'utf8',
             'prefix' => '',
             'prefix_indexes' => true,

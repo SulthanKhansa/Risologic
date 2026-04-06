@@ -62,39 +62,37 @@ class ProductResource extends Resource
                     ->numeric()
                     ->required()
                     ->integer()
-                    ->integer()
                     ->minValue(0)
                     ->label('Available Stock'),
-            ])->columns(['sm' => 1, 'md' => 2]),
 
                 Forms\Components\Section::make('Bill of Materials')
                     ->schema([
-                Forms\Components\Repeater::make('recipeItems')
-                    ->relationship('recipeItems')
-                    ->schema([
-                        Forms\Components\Select::make('raw_material_id')
-                            ->relationship('rawMaterial', 'name')
-                            ->required()
-                            ->searchable()
-                            ->preload()
-                            ->label('Raw Material')
+                        Forms\Components\Repeater::make('recipeItems')
+                            ->relationship('recipeItems')
+                            ->schema([
+                                Forms\Components\Select::make('raw_material_id')
+                                    ->relationship('rawMaterial', 'name')
+                                    ->required()
+                                    ->searchable()
+                                    ->preload()
+                                    ->label('Raw Material')
+                                    ->live()
+                                    ->afterStateUpdated(fn (Get $get, Set $set) => self::updateHpp($get, $set)),
+                                Forms\Components\TextInput::make('quantity_required')
+                                    ->numeric()
+                                    ->required()
+                                    ->label('Usage qty')
+                                    ->live(onBlur: true)
+                                    ->afterStateUpdated(fn (Get $get, Set $set) => self::updateHpp($get, $set)),
+                            ])
+                            ->columns(['sm' => 1, 'md' => 2])
+                            ->columnSpanFull()
+                            ->label('Bill of Materials (BoM) - Kebutuhan Bahan per 1 Pcs')
+                            ->addActionLabel('Tambah Bahan ke BoM')
                             ->live()
                             ->afterStateUpdated(fn (Get $get, Set $set) => self::updateHpp($get, $set)),
-                        Forms\Components\TextInput::make('quantity_required')
-                            ->numeric()
-                            ->required()
-                            ->label('Usage qty')
-                            ->live(onBlur: true)
-                            ->afterStateUpdated(fn (Get $get, Set $set) => self::updateHpp($get, $set)),
-                    ])
-                    ->columns(['sm' => 1, 'md' => 2])
-                    ->columnSpanFull()
-                    ->label('Bill of Materials (BoM) - Kebutuhan Bahan per 1 Pcs')
-                    ->addActionLabel('Tambah Bahan ke BoM')
-                    ->live()
-                    ->afterStateUpdated(fn (Get $get, Set $set) => self::updateHpp($get, $set)),
                     ]),
-            ]);
+            ])->columns(['sm' => 1, 'md' => 2]);
     }
 
     public static function updateHpp(Get $get, Set $set): void
