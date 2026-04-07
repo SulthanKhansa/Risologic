@@ -56,35 +56,65 @@ class ProductResource extends Resource
                         Forms\Components\Repeater::make('recipeItems')
                             ->relationship('recipeItems')
                             ->schema([
+                                Forms\Components\Select::make('ingredient_type')
+                                    ->options([
+                                        'raw_material' => 'Bahan Baku',
+                                        'product' => 'Produk (Setengah Jadi)',
+                                    ])
+                                    ->required()
+                                    ->default('raw_material')
+                                    ->live()
+                                    ->label('Tipe Bahan')
+                                    ->afterStateUpdated(function (Get $get, Set $set) {
+                                        $set('raw_material_id', null);
+                                        $set('ingredient_product_id', null);
+                                    }),
+
                                 Forms\Components\Select::make('raw_material_id')
                                     ->relationship('rawMaterial', 'name')
-                                    ->required()
+                                    ->required(fn (Get $get) => $get('ingredient_type') === 'raw_material')
+                                    ->visible(fn (Get $get) => $get('ingredient_type') === 'raw_material')
                                     ->searchable()
                                     ->preload()
                                     ->label('Raw Material')
                                     ->live()
                                     ->afterStateUpdated(fn (Get $get, Set $set) => self::updateHpp($get, $set)),
+
+                                Forms\Components\Select::make('ingredient_product_id')
+                                    ->relationship('ingredientProduct', 'name')
+                                    ->required(fn (Get $get) => $get('ingredient_type') === 'product')
+                                    ->visible(fn (Get $get) => $get('ingredient_type') === 'product')
+                                    ->searchable()
+                                    ->preload()
+                                    ->label('Product')
+                                    ->live()
+                                    ->afterStateUpdated(fn (Get $get, Set $set) => self::updateHpp($get, $set)),
+
                                 Forms\Components\TextInput::make('quantity_required')
                                     ->numeric()
                                     ->required()
                                     ->label('Usage qty')
                                     ->live(onBlur: true)
                                     ->afterStateUpdated(fn (Get $get, Set $set) => self::updateHpp($get, $set)),
+                                
                                 Forms\Components\Placeholder::make('ingredient_cost')
                                     ->label('Estimasi Biaya')
                                     ->content(function (Get $get) {
-                                        $materialId = $get('raw_material_id');
                                         $qty = (float) ($get('quantity_required') ?? 0);
-                                        if ($materialId && $qty > 0) {
-                                            $material = \App\Models\RawMaterial::find($materialId);
-                                            if ($material) {
-                                                return 'Rp ' . number_format($qty * $material->price_per_unit, 0, ',', '.');
-                                            }
+                                        
+                                        $cost = 0;
+                                        if ($get('ingredient_type') === 'product' && $get('ingredient_product_id')) {
+                                            $prod = \App\Models\Product::find($get('ingredient_product_id'));
+                                            $cost = $prod ? $prod->base_price : 0;
+                                        } elseif ($get('ingredient_type') === 'raw_material' && $get('raw_material_id')) {
+                                            $mat = \App\Models\RawMaterial::find($get('raw_material_id'));
+                                            $cost = $mat ? $mat->price_per_unit : 0;
                                         }
-                                        return 'Rp 0';
+
+                                        return 'Rp ' . number_format($qty * $cost, 0, ',', '.');
                                     }),
                             ])
-                            ->columns(['sm' => 1, 'md' => 3])
+                            ->columns(['sm' => 1, 'md' => 4])
                             ->columnSpanFull()
                             ->label('Bill of Materials (BoM) - Kebutuhan Bahan per 1 Pcs')
                             ->addActionLabel('Tambah Bahan ke BoM')
@@ -98,12 +128,19 @@ class ProductResource extends Resource
                                 $recipeItems = $get('recipeItems') ?? [];
                                 $totalHpp = 0;
                                 foreach ($recipeItems as $item) {
-                                    if (!empty($item['raw_material_id']) && !empty($item['quantity_required'])) {
-                                        $material = \App\Models\RawMaterial::find($item['raw_material_id']);
-                                        if ($material) {
-                                            $totalHpp += (float) $item['quantity_required'] * (float) $material->price_per_unit;
-                                        }
+                                    $qty = (float) ($item['quantity_required'] ?? 0);
+                                    $cost = 0;
+                                    $type = $item['ingredient_type'] ?? 'raw_material';
+                                    
+                                    if ($type === 'product' && !empty($item['ingredient_product_id'])) {
+                                        $prod = \App\Models\Product::find($item['ingredient_product_id']);
+                                        $cost = $prod ? $prod->base_price : 0;
+                                    } elseif ($type === 'raw_material' && !empty($item['raw_material_id'])) {
+                                        $mat = \App\Models\RawMaterial::find($item['raw_material_id']);
+                                        $cost = $mat ? $mat->price_per_unit : 0;
                                     }
+                                    
+                                    $totalHpp += $qty * $cost;
                                 }
                                 return new \Illuminate\Support\HtmlString('<div class="text-2xl font-bold text-primary-600">Rp ' . number_format($totalHpp, 0, ',', '.') . '</div>');
                             }),
@@ -117,12 +154,19 @@ class ProductResource extends Resource
         $totalHpp = 0;
 
         foreach ($recipeItems as $item) {
-            if (!empty($item['raw_material_id']) && !empty($item['quantity_required'])) {
-                $material = RawMaterial::find($item['raw_material_id']);
-                if ($material) {
-                    $totalHpp += (float) $item['quantity_required'] * (float) $material->price_per_unit;
-                }
+            $qty = (float) ($item['quantity_required'] ?? 0);
+            $cost = 0;
+            $type = $item['ingredient_type'] ?? 'raw_material';
+            
+            if ($type === 'product' && !empty($item['ingredient_product_id'])) {
+                $prod = Product::find($item['ingredient_product_id']);
+                $cost = $prod ? $prod->base_price : 0;
+            } elseif ($type === 'raw_material' && !empty($item['raw_material_id'])) {
+                $mat = RawMaterial::find($item['raw_material_id']);
+                $cost = $mat ? $mat->price_per_unit : 0;
             }
+            
+            $totalHpp += $qty * $cost;
         }
 
         $set('base_price', $totalHpp);

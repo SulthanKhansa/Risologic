@@ -57,12 +57,13 @@ class ProductionEventResource extends Resource
                                 $productId = $get('product_id');
                                 $qty = (float) ($get('quantity_produced') ?? 0);
                                 if ($productId && $qty > 0) {
-                                    $product = \App\Models\Product::with('recipeItems.rawMaterial')->find($productId);
+                                    $product = \App\Models\Product::with(['recipeItems.rawMaterial', 'recipeItems.ingredientProduct'])->find($productId);
                                     if ($product) {
                                         $html = '<ul style="list-style: disc; margin-left: 20px;">';
                                         foreach ($product->recipeItems as $item) {
                                             $totalUsed = $qty * $item->quantity_required;
-                                            $html .= "<li><strong>{$item->rawMaterial->name}</strong>: {$totalUsed} Packs/Items</li>";
+                                            $name = $item->ingredient_name;
+                                            $html .= "<li><strong>{$name}</strong>: {$totalUsed} Packs/Items</li>";
                                         }
                                         $html .= '</ul>';
                                         return new \Illuminate\Support\HtmlString($html);

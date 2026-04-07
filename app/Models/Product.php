@@ -59,9 +59,7 @@ class Product extends Model
     {
         $total = 0;
         foreach ($this->recipeItems as $item) {
-            if ($item->rawMaterial) {
-                $total += $item->quantity_required * $item->rawMaterial->price_per_unit;
-            }
+            $total += $item->quantity_required * $item->cost_per_unit;
         }
         return (float) $total;
     }

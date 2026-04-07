@@ -28,13 +28,15 @@ class ProductionEvent extends Model
             if ($event->status === 'completed' && $event->getOriginal('status') !== 'completed') {
                 $product = $event->product;
                 
-                // Cek ketersediaan stok bahan baku sebelum memproses
+                // Cek ketersediaan stok bahan baku / produk setengah jadi sebelum memproses
                 foreach ($product->recipeItems as $recipeItem) {
-                    $rawMaterial = $recipeItem->rawMaterial;
+                    $ingredient = $recipeItem->ingredient_product_id ? $recipeItem->ingredientProduct : $recipeItem->rawMaterial;
+                    if (!$ingredient) continue;
+
                     $quantityNeeded = $recipeItem->quantity_required * $event->quantity_produced;
                     
-                    if ($rawMaterial->current_stock < $quantityNeeded) {
-                        throw new \Exception("Stok {$rawMaterial->name} tidak mencukupi untuk produksi ini (Butuh: {$quantityNeeded}, Tersedia: {$rawMaterial->current_stock})");
+                    if ($ingredient->current_stock < $quantityNeeded) {
+                        throw new \Exception("Stok {$recipeItem->ingredient_name} tidak mencukupi untuk produksi ini (Butuh: {$quantityNeeded}, Tersedia: {$ingredient->current_stock})");
                     }
                 }
             }
@@ -71,11 +73,13 @@ class ProductionEvent extends Model
     {
         $product = $this->product;
         
-        // 1. Balikkan stok bahan baku
+        // 1. Balikkan stok bahan baku/produk pengganti
         foreach ($product->recipeItems as $recipeItem) {
-            $rawMaterial = $recipeItem->rawMaterial;
+            $ingredient = $recipeItem->ingredient_product_id ? $recipeItem->ingredientProduct : $recipeItem->rawMaterial;
+            if (!$ingredient) continue;
+
             $quantityToRestore = $recipeItem->quantity_required * $this->quantity_produced;
-            $rawMaterial->increment('current_stock', $quantityToRestore);
+            $ingredient->increment('current_stock', $quantityToRestore);
         }
 
         // 2. Kurangi stok produk jadi
@@ -93,12 +97,14 @@ class ProductionEvent extends Model
 
         // Potong stok bahan baku & hitung modal real-time
         foreach ($product->recipeItems as $recipeItem) {
-            $rawMaterial = $recipeItem->rawMaterial;
+            $ingredient = $recipeItem->ingredient_product_id ? $recipeItem->ingredientProduct : $recipeItem->rawMaterial;
+            if (!$ingredient) continue;
+
             $quantityToDeduct = $recipeItem->quantity_required * $this->quantity_produced;
             
-            $rawMaterial->decrement('current_stock', $quantityToDeduct);
+            $ingredient->decrement('current_stock', $quantityToDeduct);
             
-            $costPerUnitProduksi += ($recipeItem->quantity_required * $rawMaterial->price_per_unit);
+            $costPerUnitProduksi += ($recipeItem->quantity_required * $recipeItem->cost_per_unit);
         }
 
         // Hitung HPP dengan metode Rata-Rata Tertimbang
