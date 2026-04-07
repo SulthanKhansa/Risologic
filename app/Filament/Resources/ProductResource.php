@@ -46,7 +46,18 @@ class ProductResource extends Resource
                             ->integer()
                             ->minValue(0)
                             ->label('Available Stock'),
-                    ])->columns(2),
+
+                        TextInput::make('batch_yield')
+                            ->numeric()
+                            ->required()
+                            ->integer()
+                            ->minValue(1)
+                            ->default(1)
+                            ->label('Yield per Batch')
+                            ->hint('1 resep menghasilkan berapa pcs?')
+                            ->live(onBlur: true)
+                            ->afterStateUpdated(fn (Get $get, Set $set) => self::updateHpp($get, $set)),
+                    ])->columns(3),
 
                 Forms\Components\Hidden::make('slug'),
                 Forms\Components\Hidden::make('base_price'),
@@ -126,7 +137,7 @@ class ProductResource extends Resource
                             ])
                             ->columns(['sm' => 1, 'md' => 4])
                             ->columnSpanFull()
-                            ->label('Bill of Materials (BoM) - Kebutuhan Bahan per 1 Pcs')
+                            ->label('Bill of Materials (BoM) - Bahan per 1 Batch')
                             ->addActionLabel('Tambah Bahan ke BoM')
                             ->live()
                             ->afterStateUpdated(fn (Get $get, Set $set) => self::updateHpp($get, $set)),
@@ -152,7 +163,11 @@ class ProductResource extends Resource
                                     
                                     $totalHpp += $qty * $cost;
                                 }
-                                return new \Illuminate\Support\HtmlString('<div class="text-2xl font-bold text-primary-600">Rp ' . number_format($totalHpp, 0, ',', '.') . '</div>');
+                                $batchYield = max(1, (int) ($get('batch_yield') ?? 1));
+                                return new \Illuminate\Support\HtmlString(
+                                    '<div class="text-lg">Total biaya 1 batch: <strong>Rp ' . number_format($totalHpp, 0, ',', '.') . '</strong></div>' .
+                                    '<div class="text-2xl font-bold text-primary-600 mt-1">HPP per pcs: Rp ' . number_format($batchYield > 0 ? $totalHpp / $batchYield : 0, 0, ',', '.') . '</div>'
+                                );
                             }),
                     ]),
             ])->columns(['sm' => 1, 'md' => 2]);
@@ -179,7 +194,8 @@ class ProductResource extends Resource
             $totalHpp += $qty * $cost;
         }
 
-        $set('base_price', $totalHpp);
+        $batchYield = max(1, (int) ($get('batch_yield') ?? 1));
+        $set('base_price', $batchYield > 0 ? $totalHpp / $batchYield : 0);
     }
 
     public static function table(Table $table): Table

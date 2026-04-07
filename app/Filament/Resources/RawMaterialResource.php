@@ -40,21 +40,15 @@ class RawMaterialResource extends Resource
                     ->label('Current Stock')
                     ->default(0)
                     ->suffix(fn (Forms\Get $get) => $get('unit') ?? 'pcs'),
-                Forms\Components\Select::make('unit')
-                    ->options([
-                        'kg' => 'Kilogram (kg)',
-                        'gr' => 'Gram (gr)',
-                        'ltr' => 'Liter (ltr)',
-                        'ml' => 'Mililiter (ml)',
-                        'pcs' => 'Pieces (pcs)',
-                        'pack' => 'Pack',
-                        'botol' => 'Botol',
-                        'sachet' => 'Sachet',
-                    ])
+                Forms\Components\TextInput::make('unit')
                     ->required()
                     ->default('pcs')
                     ->live()
-                    ->label('Unit'),
+                    ->label('Unit')
+                    ->datalist([
+                        'kg', 'gr', 'ltr', 'ml', 'pcs', 'pack', 'botol', 'sachet', 'lembar', 'butir', 'meter',
+                    ])
+                    ->hint('Pilih atau ketik satuan baru'),
             ])->columns(['sm' => 1, 'md' => 2]);
     }
 

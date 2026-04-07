@@ -17,12 +17,14 @@ class Product extends Model
         'slug',
         'base_price',
         'current_stock',
+        'batch_yield',
         'hpp',
     ];
 
     protected $casts = [
         'base_price' => 'decimal:2',
         'current_stock' => 'integer',
+        'batch_yield' => 'integer',
     ];
 
     protected static function booted()
