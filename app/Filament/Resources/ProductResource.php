@@ -76,7 +76,7 @@ class ProductResource extends Resource
                                     ->visible(fn (Get $get) => $get('ingredient_type') === 'raw_material')
                                     ->searchable()
                                     ->preload()
-                                    ->label('Raw Material')
+                                    ->label('Material')
                                     ->live()
                                     ->afterStateUpdated(fn (Get $get, Set $set) => self::updateHpp($get, $set)),
 
@@ -94,6 +94,16 @@ class ProductResource extends Resource
                                     ->numeric()
                                     ->required()
                                     ->label('Usage qty')
+                                    ->suffix(function (Get $get) {
+                                        if ($get('ingredient_type') === 'product') {
+                                            return 'pcs';
+                                        }
+                                        if ($get('raw_material_id')) {
+                                            $mat = \App\Models\RawMaterial::find($get('raw_material_id'));
+                                            return $mat ? $mat->unit : '';
+                                        }
+                                        return '';
+                                    })
                                     ->live(onBlur: true)
                                     ->afterStateUpdated(fn (Get $get, Set $set) => self::updateHpp($get, $set)),
                                 

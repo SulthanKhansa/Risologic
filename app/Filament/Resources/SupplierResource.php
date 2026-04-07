@@ -32,14 +32,14 @@ class SupplierResource extends Resource
                             ->columnSpanFull(),
                         
                         Forms\Components\Section::make('Shopping Items List')
-                            ->description('Select which raw materials are available/can be purchased from this vendor.')
+                            ->description('Select which materials are available/can be purchased from this vendor.')
                             ->schema([
                                 Forms\Components\CheckboxList::make('rawMaterials')
                                     ->relationship('rawMaterials', 'name')
                                     ->columns(2)
                                     ->gridDirection('vertical')
                                     ->required()
-                                    ->label('Available Raw Materials'),
+                                    ->label('Available Materials'),
                             ]),
                     ])
             ]);

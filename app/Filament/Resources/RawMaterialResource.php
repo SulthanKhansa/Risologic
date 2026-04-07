@@ -17,7 +17,7 @@ class RawMaterialResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-shopping-cart';
     protected static ?string $navigationGroup = 'Inventory';
     protected static ?int $navigationSort = 2;
-    protected static ?string $modelLabel = 'Raw Material';
+    protected static ?string $modelLabel = 'Material';
 
     public static function form(Form $form): Form
     {
@@ -37,10 +37,24 @@ class RawMaterialResource extends Resource
                 Forms\Components\TextInput::make('current_stock')
                     ->required()
                     ->numeric()
-                    ->label('Current Stock (Items/Packs)')
-                    ->default(0),
-                Forms\Components\Hidden::make('unit')
-                    ->default('Item'),
+                    ->label('Current Stock')
+                    ->default(0)
+                    ->suffix(fn (Forms\Get $get) => $get('unit') ?? 'pcs'),
+                Forms\Components\Select::make('unit')
+                    ->options([
+                        'kg' => 'Kilogram (kg)',
+                        'gr' => 'Gram (gr)',
+                        'ltr' => 'Liter (ltr)',
+                        'ml' => 'Mililiter (ml)',
+                        'pcs' => 'Pieces (pcs)',
+                        'pack' => 'Pack',
+                        'botol' => 'Botol',
+                        'sachet' => 'Sachet',
+                    ])
+                    ->required()
+                    ->default('pcs')
+                    ->live()
+                    ->label('Unit'),
             ])->columns(['sm' => 1, 'md' => 2]);
     }
 
@@ -59,7 +73,7 @@ class RawMaterialResource extends Resource
                     ->sortable()
                     ->label('Price/Pack'),
                 Tables\Columns\TextColumn::make('current_stock')
-                    ->numeric()
+                    ->formatStateUsing(fn ($state, $record) => number_format($state, 2) . ' ' . ($record->unit ?? 'pcs'))
                     ->sortable()
                     ->label('Stock'),
                 Tables\Columns\TextColumn::make('created_at')
