@@ -47,12 +47,12 @@
 ## 🚀 Installation Steps
 
 ### Step 1: Fix PHP Environment
-Since the project requires PHP 8.2+, use XAMPP's PHP instead of Laragon's PHP 8.1:
+Since the project requires PHP 8.2+, use Laragon's PHP directory (adjust version as needed):
 
 ```bash
 # In PowerShell, run:
-$env:PATH = "C:\xampp\php;$env:PATH"
-cd C:\Users\user\Documents\MyRisol
+$env:PATH = "C:\laragon\bin\php\php-8.2.1-Win32-vs16-x64;$env:PATH"
+cd C:\Users\user\Documents\Risologic
 ```
 
 ### Step 2: Install Filament & Dependencies
@@ -319,9 +319,9 @@ composer dump-autoload
 ```
 
 ### Issue: PHP version error
-**Solution**: Use XAMPP's PHP 8.2:
+**Solution**: Use Laragon's PHP 8.2 bin directory:
 ```bash
-$env:PATH = "C:\xampp\php;$env:PATH"
+$env:PATH = "C:\laragon\bin\php\php-8.2.1-Win32-vs16-x64;$env:PATH"
 ```
 
 ### Issue: Staff can still delete sales
