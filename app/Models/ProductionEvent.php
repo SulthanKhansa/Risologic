@@ -82,23 +82,20 @@ class ProductionEvent extends Model
             $ingredient->increment('current_stock', $quantityToRestore);
         }
 
-        // 2. Kurangi stok produk jadi (batches × yield)
-        $batchYield = max(1, $product->batch_yield ?? 1);
-        $product->decrement('current_stock', $this->quantity_produced * $batchYield);
+        // 2. Kurangi stok produk jadi
+        $product->decrement('current_stock', $this->quantity_produced);
         $product->save();
     }
 
     public function processProduction()
     {
         $product = $this->product;
-        $batchYield = max(1, $product->batch_yield ?? 1);
         $oldStock = $product->current_stock;
         $oldHpp = $product->hpp ?? $product->base_price ?? 0;
         
-        $costPerBatch = 0;
+        $costPerUnit = 0;
 
         // Potong stok bahan baku & hitung modal real-time
-        // quantity_produced = jumlah batch yang diproduksi
         foreach ($product->recipeItems as $recipeItem) {
             $ingredient = $recipeItem->ingredient_product_id ? $recipeItem->ingredientProduct : $recipeItem->rawMaterial;
             if (!$ingredient) continue;
@@ -107,24 +104,21 @@ class ProductionEvent extends Model
             
             $ingredient->decrement('current_stock', $quantityToDeduct);
             
-            $costPerBatch += ($recipeItem->quantity_required * $recipeItem->cost_per_unit);
+            $costPerUnit += ($recipeItem->quantity_required * $recipeItem->cost_per_unit);
         }
 
-        // HPP per pcs = biaya per batch / yield
-        $costPerPcs = $costPerBatch / $batchYield;
-
         // Hitung HPP dengan metode Rata-Rata Tertimbang
-        $newPcsProduced = $this->quantity_produced * $batchYield;
-        $totalStock = $oldStock + $newPcsProduced;
+        $newQuantity = $this->quantity_produced;
+        $totalStock = $oldStock + $newQuantity;
         
         if ($totalStock > 0) {
             $totalNilaiLama = $oldStock * $oldHpp;
-            $totalNilaiBaru = $newPcsProduced * $costPerPcs;
+            $totalNilaiBaru = $newQuantity * $costPerUnit;
             $product->hpp = ($totalNilaiLama + $totalNilaiBaru) / $totalStock;
             $product->base_price = $product->hpp;
         } else {
-            $product->hpp = $costPerPcs;
-            $product->base_price = $costPerPcs;
+            $product->hpp = $costPerUnit;
+            $product->base_price = $costPerUnit;
         }
 
         $product->current_stock = $totalStock;

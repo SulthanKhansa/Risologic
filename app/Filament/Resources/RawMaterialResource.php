@@ -67,7 +67,7 @@ class RawMaterialResource extends Resource
                     ->sortable()
                     ->label('Price/Pack'),
                 Tables\Columns\TextColumn::make('current_stock')
-                    ->formatStateUsing(fn ($state, $record) => number_format($state, 2) . ' ' . ($record->unit ?? 'pcs'))
+                    ->formatStateUsing(fn ($state, $record) => floatval($state) . ' ' . ($record->unit ?? 'pcs'))
                     ->sortable()
                     ->label('Stock'),
                 Tables\Columns\TextColumn::make('created_at')
