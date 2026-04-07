@@ -13,11 +13,19 @@ class RawMaterial extends Model
 
     protected $fillable = [
         'name',
+        'brand',
         'unit',
         'price_per_unit',
         'pack_price',
         'pack_size',
         'current_stock',
+    ];
+
+    protected $casts = [
+        'price_per_unit' => 'decimal:2',
+        'current_stock' => 'decimal:2',
+        'pack_price' => 'decimal:2',
+        'pack_size' => 'decimal:2',
     ];
 
     public function recipeItems(): HasMany

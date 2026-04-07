@@ -31,15 +31,15 @@ class SupplierResource extends Resource
                             ->maxLength(65535)
                             ->columnSpanFull(),
                         
-                        Forms\Components\Section::make('Daftar Barang Belanja')
-                            ->description('Pilih bahan baku apa saja yang tersedia/bisa dibeli di vendor ini.')
+                        Forms\Components\Section::make('Shopping Items List')
+                            ->description('Select which raw materials are available/can be purchased from this vendor.')
                             ->schema([
                                 Forms\Components\CheckboxList::make('rawMaterials')
                                     ->relationship('rawMaterials', 'name')
                                     ->columns(2)
                                     ->gridDirection('vertical')
                                     ->required()
-                                    ->label('Bahan Baku yang Tersedia'),
+                                    ->label('Available Raw Materials'),
                             ]),
                     ])
             ]);
@@ -54,7 +54,7 @@ class SupplierResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('rawMaterials_count')
                     ->counts('rawMaterials')
-                    ->label('Jumlah Barang'),
+                    ->label('Items Count'),
                 Tables\Columns\TextColumn::make('address')
                     ->limit(50),
                 Tables\Columns\TextColumn::make('created_at')

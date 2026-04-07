@@ -24,7 +24,7 @@ class ProductionEventResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\Section::make('Informasi Produksi')
+                Forms\Components\Section::make('Production Info')
                     ->schema([
                         Forms\Components\Select::make('product_id')
                             ->relationship('product', 'name')
@@ -51,7 +51,7 @@ class ProductionEventResource extends Resource
                             ->default('completed'),
 
                         Forms\Components\Placeholder::make('bom_preview')
-                            ->label('Bahan yang Dibutuhkan (Resep)')
+                            ->label('Required Ingredients (Recipe)')
                             ->columnSpanFull()
                             ->content(function (Forms\Get $get) {
                                 $productId = $get('product_id');
@@ -62,13 +62,13 @@ class ProductionEventResource extends Resource
                                         $html = '<ul style="list-style: disc; margin-left: 20px;">';
                                         foreach ($product->recipeItems as $item) {
                                             $totalUsed = $qty * $item->quantity_required;
-                                            $html .= "<li><strong>{$item->rawMaterial->name}</strong>: {$totalUsed} {$item->rawMaterial->unit}</li>";
+                                            $html .= "<li><strong>{$item->rawMaterial->name}</strong>: {$totalUsed} Packs/Items</li>";
                                         }
                                         $html .= '</ul>';
                                         return new \Illuminate\Support\HtmlString($html);
                                     }
                                 }
-                                return 'Pilih produk dan jumlah untuk melihat resep.';
+                                return 'Select product and quantity to see the recipe.';
                             }),
                     ])->columns(['sm' => 1, 'md' => 3]),
                 

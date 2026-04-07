@@ -1,6 +1,6 @@
-<?php
-
 namespace App\Models;
+
+use Illuminate\Support\Str;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -22,6 +22,15 @@ class Product extends Model
         'base_price' => 'decimal:2',
         'current_stock' => 'integer',
     ];
+
+    protected static function booted()
+    {
+        static::saving(function (Product $product) {
+            if (empty($product->slug) && $product->name) {
+                $product->slug = Str::slug($product->name) . '-' . uniqid();
+            }
+        });
+    }
 
     /**
      * Get all sales for this product.

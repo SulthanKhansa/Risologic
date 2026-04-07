@@ -32,38 +32,24 @@ class ProductResource extends Resource
     {
         return $form
             ->schema([
-                TextInput::make('name')
-                    ->required()
-                    ->unique('products', 'name', ignoreRecord: true)
-                    ->maxLength(255)
-                    ->label('Product Name'),
+                Forms\Components\Section::make('Product Info')
+                    ->schema([
+                        TextInput::make('name')
+                            ->required()
+                            ->unique('products', 'name', ignoreRecord: true)
+                            ->maxLength(255)
+                            ->label('Product Name'),
 
-                TextInput::make('slug')
-                    ->required()
-                    ->unique('products', 'slug', ignoreRecord: true)
-                    ->maxLength(255)
-                    ->label('Slug')
-                    ->hint('URL-friendly identifier'),
+                        TextInput::make('current_stock')
+                            ->numeric()
+                            ->required()
+                            ->integer()
+                            ->minValue(0)
+                            ->label('Available Stock'),
+                    ])->columns(2),
 
-                TextInput::make('base_price')
-                    ->numeric()
-                    ->required()
-                    ->prefix('Rp')
-                    ->step('0.01')
-                    ->minValue(0)
-                    ->label('Modal (HPP) per Pcs')
-                    ->helperText('This value will auto-calculate based on BoM below, but stay manual-editable.')
-                    ->id('base_price_field'),
-
-                // Removing redundant HPP field since base_price is now HPP
-
-
-                TextInput::make('current_stock')
-                    ->numeric()
-                    ->required()
-                    ->integer()
-                    ->minValue(0)
-                    ->label('Available Stock'),
+                Forms\Components\Hidden::make('slug'),
+                Forms\Components\Hidden::make('base_price'),
 
                 Forms\Components\Section::make('Bill of Materials')
                     ->schema([
@@ -104,6 +90,23 @@ class ProductResource extends Resource
                             ->addActionLabel('Tambah Bahan ke BoM')
                             ->live()
                             ->afterStateUpdated(fn (Get $get, Set $set) => self::updateHpp($get, $set)),
+                        
+                        Forms\Components\Placeholder::make('total_hpp_summary')
+                            ->label('TOTAL MODAL (HPP) BARU')
+                            ->columnSpanFull()
+                            ->content(function (Get $get) {
+                                $recipeItems = $get('recipeItems') ?? [];
+                                $totalHpp = 0;
+                                foreach ($recipeItems as $item) {
+                                    if (!empty($item['raw_material_id']) && !empty($item['quantity_required'])) {
+                                        $material = \App\Models\RawMaterial::find($item['raw_material_id']);
+                                        if ($material) {
+                                            $totalHpp += (float) $item['quantity_required'] * (float) $material->price_per_unit;
+                                        }
+                                    }
+                                }
+                                return new \Illuminate\Support\HtmlString('<div class="text-2xl font-bold text-primary-600">Rp ' . number_format($totalHpp, 0, ',', '.') . '</div>');
+                            }),
                     ]),
             ])->columns(['sm' => 1, 'md' => 2]);
     }
@@ -136,10 +139,6 @@ class ProductResource extends Resource
                     ->searchable()
                     ->sortable()
                     ->label('Product'),
-
-                TextColumn::make('slug')
-                    ->searchable()
-                    ->label('Slug'),
 
                 TextColumn::make('base_price')
                     ->formatStateUsing(fn ($state) => 'Rp ' . number_format($state ?? 0, 0, ',', '.'))

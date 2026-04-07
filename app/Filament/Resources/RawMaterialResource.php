@@ -26,11 +26,10 @@ class RawMaterialResource extends Resource
                 Forms\Components\TextInput::make('name')
                     ->required()
                     ->label('Material Name'),
-                Forms\Components\TextInput::make('unit')
-                    ->required()
-                    ->label('Unit (e.g. Kg, Gram, Liter, Pcs)'),
+                Forms\Components\TextInput::make('brand')
+                    ->label('Brand (Merk)'),
                 Forms\Components\TextInput::make('price_per_unit')
-                    ->label('Purchase Price (Per Unit)')
+                    ->label('Price per Pack / Item')
                     ->numeric()
                     ->required()
                     ->prefix('Rp')
@@ -38,32 +37,10 @@ class RawMaterialResource extends Resource
                 Forms\Components\TextInput::make('current_stock')
                     ->required()
                     ->numeric()
-                    ->label('Current Stock (Units)')
+                    ->label('Current Stock (Items/Packs)')
                     ->default(0),
-
-                Forms\Components\Section::make('Kalkulator Harga Satuan (Sangat Disarankan)')
-                    ->description('Gunakan ini agar Anda tidak perlu pusing menghitung harga per mili/gram secara manual.')
-                    ->schema([
-                        Forms\Components\TextInput::make('pack_price')
-                            ->label('Harga Per Kemasan (Misal: 1 Botol)')
-                            ->numeric()
-                            ->prefix('Rp')
-                            ->live()
-                            ->afterStateUpdated(function (Forms\Get $get, Forms\Set $set) {
-                                $price = (float) ($get('pack_price') ?? 0);
-                                $size = (float) ($get('pack_size') ?? 0);
-                                if ($size > 0) $set('price_per_unit', $price / $size);
-                            }),
-                        Forms\Components\TextInput::make('pack_size')
-                            ->label('Isi Per Kemasan (Misal: 335)')
-                            ->numeric()
-                            ->live()
-                            ->afterStateUpdated(function (Forms\Get $get, Forms\Set $set) {
-                                $price = (float) ($get('pack_price') ?? 0);
-                                $size = (float) ($get('pack_size') ?? 0);
-                                if ($size > 0) $set('price_per_unit', $price / $size);
-                            }),
-                    ])->columns(['sm' => 1, 'md' => 2]),
+                Forms\Components\Hidden::make('unit')
+                    ->default('Item'),
             ])->columns(['sm' => 1, 'md' => 2]);
     }
 
@@ -73,18 +50,18 @@ class RawMaterialResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->searchable()
-                    ->label('Name'),
-                Tables\Columns\TextColumn::make('unit')
+                    ->label('Material'),
+                Tables\Columns\TextColumn::make('brand')
                     ->searchable()
-                    ->label('Unit'),
+                    ->label('Brand'),
                 Tables\Columns\TextColumn::make('price_per_unit')
                     ->formatStateUsing(fn ($state) => 'Rp ' . number_format($state ?? 0, 0, ',', '.'))
                     ->sortable()
-                    ->label('Unit Price'),
+                    ->label('Price/Pack'),
                 Tables\Columns\TextColumn::make('current_stock')
                     ->numeric()
                     ->sortable()
-                    ->label('Current Stock'),
+                    ->label('Stock'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
