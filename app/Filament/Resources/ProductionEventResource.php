@@ -38,7 +38,8 @@ class ProductionEventResource extends Resource
                             ->required()
                             ->numeric()
                             ->minValue(1)
-                            ->label('Quantity Produced')
+                            ->label('Jumlah Resep/Batch')
+                            ->suffix('resep')
                             ->live(onBlur: true)
                             ->disabled(fn (?ProductionEvent $record) => $record && $record->status === 'completed'),
                         Forms\Components\DatePicker::make('production_date')
@@ -59,17 +60,26 @@ class ProductionEventResource extends Resource
                                 if ($productId && $qty > 0) {
                                     $product = \App\Models\Product::with(['recipeItems.rawMaterial', 'recipeItems.ingredientProduct'])->find($productId);
                                     if ($product) {
-                                        $html = '<ul style="list-style: disc; margin-left: 20px;">';
+                                        $batchYield = max(1, $product->batch_yield ?? 1);
+                                        $totalPcs = $qty * $batchYield;
+                                        $html = '<div style="margin-bottom: 8px;"><strong>' . $qty . ' resep × ' . $batchYield . ' pcs = ' . $totalPcs . ' pcs total</strong></div>';
+                                        $html .= '<ul style="list-style: disc; margin-left: 20px;">';
                                         foreach ($product->recipeItems as $item) {
                                             $totalUsed = $qty * $item->quantity_required;
                                             $name = $item->ingredient_name;
-                                            $html .= "<li><strong>{$name}</strong>: {$totalUsed} Packs/Items</li>";
+                                            $unit = '';
+                                            if ($item->raw_material_id && $item->rawMaterial) {
+                                                $unit = $item->rawMaterial->unit ?? '';
+                                            } elseif ($item->ingredient_product_id) {
+                                                $unit = 'pcs';
+                                            }
+                                            $html .= "<li><strong>{$name}</strong>: {$totalUsed} {$unit}</li>";
                                         }
                                         $html .= '</ul>';
                                         return new \Illuminate\Support\HtmlString($html);
                                     }
                                 }
-                                return 'Select product and quantity to see the recipe.';
+                                return 'Pilih produk dan jumlah resep untuk melihat kebutuhan bahan.';
                             }),
                     ])->columns(['sm' => 1, 'md' => 3]),
                 
