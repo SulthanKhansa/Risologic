@@ -33,12 +33,14 @@ class RawMaterialResource extends Resource
                     ->numeric()
                     ->required()
                     ->prefix('Rp')
-                    ->default(0),
+                    ->default(0)
+                    ->formatStateUsing(fn ($state) => $state !== null ? (string) (float) $state : null),
                 Forms\Components\TextInput::make('current_stock')
                     ->required()
                     ->numeric()
                     ->label('Current Stock')
                     ->default(0)
+                    ->formatStateUsing(fn ($state) => $state !== null ? (string) (float) $state : null)
                     ->suffix(fn (Forms\Get $get) => $get('unit') ?? 'pcs'),
                 Forms\Components\TextInput::make('unit')
                     ->required()

@@ -41,7 +41,8 @@ class ProductionEventResource extends Resource
                             ->label('Jumlah Resep/Batch')
                             ->suffix('resep')
                             ->live(onBlur: true)
-                            ->disabled(fn (?ProductionEvent $record) => $record && $record->status === 'completed'),
+                            ->disabled(fn (?ProductionEvent $record) => $record && $record->status === 'completed')
+                            ->formatStateUsing(fn ($state) => $state !== null ? (string) (float) $state : null),
                         Forms\Components\DatePicker::make('production_date')
                             ->required()
                             ->default(now())

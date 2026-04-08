@@ -106,6 +106,7 @@ class ProductResource extends Resource
                                     ->numeric()
                                     ->required()
                                     ->label('Usage qty')
+                                    ->formatStateUsing(fn ($state) => $state !== null ? (string) (float) $state : null)
                                     ->suffix(function (Get $get) {
                                         if ($get('ingredient_type') === 'product') {
                                             return 'pcs';
