@@ -77,6 +77,11 @@ class ProductResource extends Resource
                                     ->default('raw_material')
                                     ->live()
                                     ->label('Tipe Bahan')
+                                    ->afterStateHydrated(function (Forms\Components\Select $component, ?\App\Models\RecipeItem $record) {
+                                        if ($record) {
+                                            $component->state($record->ingredient_product_id ? 'product' : 'raw_material');
+                                        }
+                                    })
                                     ->afterStateUpdated(function (Get $get, Set $set) {
                                         $set('raw_material_id', null);
                                         $set('ingredient_product_id', null);
