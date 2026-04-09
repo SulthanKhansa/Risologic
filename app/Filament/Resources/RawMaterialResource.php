@@ -28,8 +28,39 @@ class RawMaterialResource extends Resource
                     ->label('Material Name'),
                 Forms\Components\TextInput::make('brand')
                     ->label('Brand (Merk)'),
+                Forms\Components\Fieldset::make('Price Calculator (Optional)')
+                    ->schema([
+                        Forms\Components\TextInput::make('calc_total_price')
+                            ->label('Minimarket Total Price')
+                            ->numeric()
+                            ->prefix('Rp')
+                            ->live(onBlur: true)
+                            ->dehydrated(false)
+                            ->hint('e.g., 13600')
+                            ->afterStateUpdated(function (Forms\Get $get, Forms\Set $set, $state) {
+                                $totalPrice = (float) ($state ?? 0);
+                                $totalQty = (float) ($get('calc_total_qty') ?? 1);
+                                if ($totalQty > 0) {
+                                    $set('price_per_unit', $totalPrice / $totalQty);
+                                }
+                            }),
+                        Forms\Components\TextInput::make('calc_total_qty')
+                            ->label('Total Base Unit in Package')
+                            ->numeric()
+                            ->live(onBlur: true)
+                            ->dehydrated(false)
+                            ->hint('e.g., 1000 for 1kg in gr')
+                            ->afterStateUpdated(function (Forms\Get $get, Forms\Set $set, $state) {
+                                $totalQty = (float) ($state ?? 1);
+                                $totalPrice = (float) ($get('calc_total_price') ?? 0);
+                                if ($totalQty > 0) {
+                                    $set('price_per_unit', $totalPrice / $totalQty);
+                                }
+                            }),
+                    ])->columns(2),
+
                 Forms\Components\TextInput::make('price_per_unit')
-                    ->label('Price per Pack / Item')
+                    ->label('Final Price per Base Unit')
                     ->numeric()
                     ->required()
                     ->prefix('Rp')
@@ -46,7 +77,7 @@ class RawMaterialResource extends Resource
                     ->required()
                     ->default('pcs')
                     ->live()
-                    ->label('Unit')
+                    ->label('Base Unit')
                     ->datalist([
                         'kg', 'gr', 'ltr', 'ml', 'pcs', 'pack', 'botol', 'sachet', 'lembar', 'butir', 'meter',
                     ])
@@ -65,13 +96,13 @@ class RawMaterialResource extends Resource
                     ->searchable()
                     ->label('Brand'),
                 Tables\Columns\TextColumn::make('price_per_unit')
-                    ->formatStateUsing(fn ($state) => 'Rp ' . number_format($state ?? 0, 0, ',', '.'))
+                    ->formatStateUsing(fn ($state) => 'Rp ' . number_format($state ?? 0, 2, ',', '.'))
                     ->sortable()
-                    ->label('Price/Pack'),
+                    ->label('Price/Base Unit'),
                 Tables\Columns\TextColumn::make('current_stock')
                     ->formatStateUsing(fn ($state, $record) => floatval($state) . ' ' . ($record->unit ?? 'pcs'))
                     ->sortable()
-                    ->label('Stock'),
+                    ->label('Current Stock'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
