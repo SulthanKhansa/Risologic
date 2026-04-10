@@ -21,4 +21,11 @@ class EditProduct extends EditRecord
             Actions\DeleteAction::make(),
         ];
     }
+
+    protected function afterSave(): void
+    {
+        if ($this->record && method_exists($this->record, 'updateBasePriceFromRecipe')) {
+            $this->record->updateBasePriceFromRecipe();
+        }
+    }
 }

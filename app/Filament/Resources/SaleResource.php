@@ -77,7 +77,7 @@ class SaleResource extends Resource
                             ->disabled(fn (?Sale $record) => $record && in_array($record->status, ['paid', 'cancelled']))
                             ->afterStateUpdated(fn (Get $get, Set $set) => self::updateCalculations($get, $set))
                             ->label('Quantity')
-                            ->formatStateUsing(fn ($state) => $state !== null ? (string) (float) $state : null),
+                            ->formatStateUsing(fn ($state) => $state === null ? null : (str_contains((string)$state, '.') ? (string)(float)$state : $state)),
 
                         TextInput::make('total_price')
                             ->numeric()
@@ -92,7 +92,7 @@ class SaleResource extends Resource
                                 self::updateCalculations($get, $set);
                             })
                             ->label('Total Sale Price')
-                            ->formatStateUsing(fn ($state) => $state !== null ? (string) (float) $state : null),
+                            ->formatStateUsing(fn ($state) => $state === null ? null : (str_contains((string)$state, '.') ? (string)(float)$state : $state)),
                     ])->columns(['sm' => 1, 'md' => 2]),
 
                 Forms\Components\Section::make('Costs & Profit Details')
@@ -104,7 +104,7 @@ class SaleResource extends Resource
                             ->disabled(fn (?Sale $record) => $record && in_array($record->status, ['paid', 'cancelled']))
                             ->afterStateUpdated(fn (Get $get, Set $set) => self::updateCalculations($get, $set))
                             ->label('Admin Fee / Commission')
-                            ->formatStateUsing(fn ($state) => $state !== null ? (string) (float) $state : null),
+                            ->formatStateUsing(fn ($state) => $state === null ? null : (str_contains((string)$state, '.') ? (string)(float)$state : $state)),
 
                         TextInput::make('net_income')
                             ->numeric()
@@ -112,7 +112,7 @@ class SaleResource extends Resource
                             ->disabled()
                             ->dehydrated()
                             ->label('Net Income')
-                            ->formatStateUsing(fn ($state) => $state !== null ? (string) (float) $state : null),
+                            ->formatStateUsing(fn ($state) => $state === null ? null : (str_contains((string)$state, '.') ? (string)(float)$state : $state)),
 
                         Forms\Components\Placeholder::make('profit_prediction')
                             ->label('Estimated Gross Profit')

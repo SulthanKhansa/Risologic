@@ -30,30 +30,38 @@ class RawMaterialResource extends Resource
                     ->label('Brand (Merk)'),
                 Forms\Components\Fieldset::make('Price Calculator (Optional)')
                     ->schema([
-                        Forms\Components\TextInput::make('calc_total_price')
+                        Forms\Components\Placeholder::make('last_purchase_info')
+                            ->label('Previous Purchase Info')
+                            ->columnSpanFull()
+                            ->hidden(fn ($record) => !$record || !$record->pack_price || !$record->pack_size)
+                            ->content(function ($record) {
+                                if (!$record) return '';
+                                return 'Rp ' . number_format($record->pack_price, 0, ',', '.') . ' for ' . floatval($record->pack_size) . ' ' . ($record->unit ?? '');
+                            }),
+                        Forms\Components\TextInput::make('pack_price')
                             ->label('Minimarket Total Price')
                             ->numeric()
                             ->prefix('Rp')
                             ->live(onBlur: true)
-                            ->dehydrated(false)
+                            ->afterStateHydrated(fn ($component) => $component->state(null))
                             ->hint('e.g., 13600')
                             ->afterStateUpdated(function (Forms\Get $get, Forms\Set $set, $state) {
                                 $totalPrice = (float) ($state ?? 0);
-                                $totalQty = (float) ($get('calc_total_qty') ?? 1);
-                                if ($totalQty > 0) {
+                                $totalQty = (float) ($get('pack_size') ?? 1);
+                                if ($totalQty > 0 && $totalPrice > 0) {
                                     $set('price_per_unit', $totalPrice / $totalQty);
                                 }
                             }),
-                        Forms\Components\TextInput::make('calc_total_qty')
+                        Forms\Components\TextInput::make('pack_size')
                             ->label('Total Base Unit in Package')
                             ->numeric()
                             ->live(onBlur: true)
-                            ->dehydrated(false)
+                            ->afterStateHydrated(fn ($component) => $component->state(null))
                             ->hint('e.g., 1000 for 1kg in gr')
                             ->afterStateUpdated(function (Forms\Get $get, Forms\Set $set, $state) {
                                 $totalQty = (float) ($state ?? 1);
-                                $totalPrice = (float) ($get('calc_total_price') ?? 0);
-                                if ($totalQty > 0) {
+                                $totalPrice = (float) ($get('pack_price') ?? 0);
+                                if ($totalQty > 0 && $totalPrice > 0) {
                                     $set('price_per_unit', $totalPrice / $totalQty);
                                 }
                             }),
@@ -64,14 +72,12 @@ class RawMaterialResource extends Resource
                     ->numeric()
                     ->required()
                     ->prefix('Rp')
-                    ->default(0)
-                    ->formatStateUsing(fn ($state) => $state !== null ? (string) (float) $state : null),
+                    ->formatStateUsing(fn ($state) => $state === null ? null : (str_contains((string)$state, '.') ? (string)(float)$state : $state)),
                 Forms\Components\TextInput::make('current_stock')
                     ->required()
                     ->numeric()
                     ->label('Current Stock')
-                    ->default(0)
-                    ->formatStateUsing(fn ($state) => $state !== null ? (string) (float) $state : null)
+                    ->formatStateUsing(fn ($state) => $state === null ? null : (str_contains((string)$state, '.') ? (string)(float)$state : $state))
                     ->suffix(fn (Forms\Get $get) => $get('unit') ?? 'pcs'),
                 Forms\Components\TextInput::make('unit')
                     ->required()

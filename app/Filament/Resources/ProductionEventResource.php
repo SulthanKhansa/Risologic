@@ -42,7 +42,7 @@ class ProductionEventResource extends Resource
                             ->suffix('resep')
                             ->live(onBlur: true)
                             ->disabled(fn (?ProductionEvent $record) => $record && $record->status === 'completed')
-                            ->formatStateUsing(fn ($state) => $state !== null ? (string) (float) $state : null),
+                            ->formatStateUsing(fn ($state) => $state === null ? null : (str_contains((string)$state, '.') ? (string)(float)$state : $state)),
                         Forms\Components\DatePicker::make('production_date')
                             ->required()
                             ->default(now())

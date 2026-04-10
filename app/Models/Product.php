@@ -14,6 +14,7 @@ class Product extends Model
 
     protected $fillable = [
         'name',
+        'type',
         'slug',
         'base_price',
         'current_stock',
@@ -64,5 +65,16 @@ class Product extends Model
             $total += $item->quantity_required * $item->cost_per_unit;
         }
         return (float) $total;
+    }
+
+    /**
+     * Compute and save the base_price natively to ensure DB integrity
+     */
+    public function updateBasePriceFromRecipe()
+    {
+        $total = $this->calculateHppFromRecipe();
+        $batchYield = max(1, (int) ($this->batch_yield ?? 1));
+        $this->base_price = $total / $batchYield;
+        $this->saveQuietly();
     }
 }

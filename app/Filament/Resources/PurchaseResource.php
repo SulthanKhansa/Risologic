@@ -56,7 +56,7 @@ class PurchaseResource extends Resource
                             ->readonly()
                             ->default(0)
                             ->label('Total Grand Amount')
-                            ->formatStateUsing(fn ($state) => $state !== null ? (string) (float) $state : null),
+                            ->formatStateUsing(fn ($state) => $state === null ? null : (str_contains((string)$state, '.') ? (string)(float)$state : $state)),
                     ])->columns(['sm' => 1, 'md' => 2]),
 
                 Forms\Components\Section::make('Purchase Items')
@@ -98,7 +98,7 @@ class PurchaseResource extends Resource
                                     ->reactive()
                                     ->label('Qty (Packs/Items)')
                                     ->disabled(fn (?Purchase $record) => $record && in_array($record->status, ['completed', 'cancelled']))
-                                    ->formatStateUsing(fn ($state) => $state !== null ? (string) (float) $state : null)
+                                    ->formatStateUsing(fn ($state) => $state === null ? null : (str_contains((string)$state, '.') ? (string)(float)$state : $state))
                                     ->afterStateUpdated(fn ($state, Set $set, Forms\Get $get) => 
                                         $set('subtotal', $state * ($get('unit_price') ?? 0))),
                                 Forms\Components\TextInput::make('unit_price')
@@ -107,7 +107,7 @@ class PurchaseResource extends Resource
                                     ->required()
                                     ->live(onBlur: true)
                                     ->label('Price per Pack/Item')
-                                    ->formatStateUsing(fn ($state) => $state !== null ? (string) (float) $state : null)
+                                    ->formatStateUsing(fn ($state) => $state === null ? null : (str_contains((string)$state, '.') ? (string)(float)$state : $state))
                                     ->afterStateUpdated(fn ($state, Set $set, Forms\Get $get) => 
                                         $set('subtotal', $state * ($get('qty') ?? 0))),
                                 Forms\Components\TextInput::make('subtotal')
@@ -115,7 +115,7 @@ class PurchaseResource extends Resource
                                     ->prefix('Rp')
                                     ->readonly()
                                     ->label('Subtotal (Auto)')
-                                    ->formatStateUsing(fn ($state) => $state !== null ? (string) (float) $state : null),
+                                    ->formatStateUsing(fn ($state) => $state === null ? null : (str_contains((string)$state, '.') ? (string)(float)$state : $state)),
                             ])
                             ->columns(['sm' => 1, 'md' => 4])
                             ->extraItemActions([

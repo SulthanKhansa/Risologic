@@ -46,10 +46,19 @@ class ProductResource extends Resource
                             ->integer()
                             ->minValue(0)
                             ->label('Available Stock'),
-                    ])->columns(2),
+                            
+                        Forms\Components\Select::make('type')
+                            ->options([
+                                'final' => 'Produk Jadi',
+                                'intermediate' => 'Produk Setengah Jadi',
+                            ])
+                            ->required()
+                            ->default('final')
+                            ->label('Product Type'),
+                    ])->columns(3),
 
                 Forms\Components\Hidden::make('slug'),
-                Forms\Components\Hidden::make('base_price'),
+                Forms\Components\Hidden::make('base_price')->dehydrated(false),
 
                 Forms\Components\Section::make('Bill of Materials')
                     ->schema([
@@ -63,7 +72,6 @@ class ProductResource extends Resource
                             ->suffix('pcs')
                             ->hint('Contoh: 500gr tepung → 8 kulit risol, isi 8')
                             ->live(onBlur: true)
-                            ->afterStateUpdated(fn (Get $get, Set $set) => self::updateHpp($get, $set))
                             ->columnSpanFull(),
                         Forms\Components\Repeater::make('recipeItems')
                             ->relationship('recipeItems')
@@ -94,8 +102,7 @@ class ProductResource extends Resource
                                     ->searchable()
                                     ->preload()
                                     ->label('Material')
-                                    ->live()
-                                    ->afterStateUpdated(fn (Get $get, Set $set) => self::updateHpp($get, $set)),
+                                    ->live(),
 
                                 Forms\Components\Select::make('ingredient_product_id')
                                     ->relationship('ingredientProduct', 'name')
@@ -104,14 +111,13 @@ class ProductResource extends Resource
                                     ->searchable()
                                     ->preload()
                                     ->label('Product')
-                                    ->live()
-                                    ->afterStateUpdated(fn (Get $get, Set $set) => self::updateHpp($get, $set)),
+                                    ->live(),
 
                                 Forms\Components\TextInput::make('quantity_required')
                                     ->numeric()
                                     ->required()
                                     ->label('Usage qty')
-                                    ->formatStateUsing(fn ($state) => $state !== null ? (string) (float) $state : null)
+                                    ->formatStateUsing(fn ($state) => $state === null ? null : (str_contains((string)$state, '.') ? (string)(float)$state : $state))
                                     ->suffix(function (Get $get) {
                                         if ($get('ingredient_type') === 'product') {
                                             return 'pcs';
@@ -122,8 +128,7 @@ class ProductResource extends Resource
                                         }
                                         return '';
                                     })
-                                    ->live(onBlur: true)
-                                    ->afterStateUpdated(fn (Get $get, Set $set) => self::updateHpp($get, $set)),
+                                    ->live(onBlur: true),
                                 
                                 Forms\Components\Placeholder::make('ingredient_cost')
                                     ->label('Estimasi Biaya')
@@ -146,8 +151,7 @@ class ProductResource extends Resource
                             ->columnSpanFull()
                             ->label('Bahan-bahan per 1 Resep')
                             ->addActionLabel('Tambah Bahan ke BoM')
-                            ->live()
-                            ->afterStateUpdated(fn (Get $get, Set $set) => self::updateHpp($get, $set)),
+                            ->live(),
                         
                         Forms\Components\Placeholder::make('total_hpp_summary')
                             ->label('TOTAL MODAL (HPP) BARU')
@@ -181,31 +185,6 @@ class ProductResource extends Resource
             ])->columns(['sm' => 1, 'md' => 2]);
     }
 
-    public static function updateHpp(Get $get, Set $set): void
-    {
-        $recipeItems = $get('recipeItems') ?? [];
-        $totalHpp = 0;
-
-        foreach ($recipeItems as $item) {
-            $qty = (float) ($item['quantity_required'] ?? 0);
-            $cost = 0;
-            $type = $item['ingredient_type'] ?? 'raw_material';
-            
-            if ($type === 'product' && !empty($item['ingredient_product_id'])) {
-                $prod = Product::find($item['ingredient_product_id']);
-                $cost = $prod ? $prod->base_price : 0;
-            } elseif ($type === 'raw_material' && !empty($item['raw_material_id'])) {
-                $mat = RawMaterial::find($item['raw_material_id']);
-                $cost = $mat ? $mat->price_per_unit : 0;
-            }
-            
-            $totalHpp += $qty * $cost;
-        }
-
-        $batchYield = max(1, (int) ($get('batch_yield') ?? 1));
-        $set('base_price', $batchYield > 0 ? $totalHpp / $batchYield : 0);
-    }
-
     public static function table(Table $table): Table
     {
         return $table
@@ -217,6 +196,19 @@ class ProductResource extends Resource
                     ->searchable()
                     ->sortable()
                     ->label('Product'),
+                    
+                TextColumn::make('type')
+                    ->badge()
+                    ->colors([
+                        'primary' => 'final',
+                        'warning' => 'intermediate',
+                    ])
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                        'final' => 'Produk Jadi',
+                        'intermediate' => 'Setengah Jadi',
+                        default => $state,
+                    })
+                    ->label('Tipe'),
 
                 TextColumn::make('base_price')
                     ->formatStateUsing(fn ($state) => 'Rp ' . number_format($state ?? 0, 0, ',', '.'))

@@ -20,4 +20,11 @@ class CreateProduct extends CreateRecord
                 ->icon('heroicon-m-arrow-left'),
         ];
     }
+
+    protected function afterCreate(): void
+    {
+        if ($this->record && method_exists($this->record, 'updateBasePriceFromRecipe')) {
+            $this->record->updateBasePriceFromRecipe();
+        }
+    }
 }

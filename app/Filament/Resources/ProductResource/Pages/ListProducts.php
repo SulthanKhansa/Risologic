@@ -16,4 +16,18 @@ class ListProducts extends ListRecords
             Actions\CreateAction::make(),
         ];
     }
+
+    public function getTabs(): array
+    {
+        return [
+            'semua' => \Filament\Resources\Components\Tab::make('Semua')
+                ->badge(\App\Models\Product::count()),
+            'final' => \Filament\Resources\Components\Tab::make('Produk Jadi')
+                ->modifyQueryUsing(fn ($query) => $query->where('type', 'final'))
+                ->badge(\App\Models\Product::where('type', 'final')->count()),
+            'intermediate' => \Filament\Resources\Components\Tab::make('Produk Setengah Jadi')
+                ->modifyQueryUsing(fn ($query) => $query->where('type', 'intermediate'))
+                ->badge(\App\Models\Product::where('type', 'intermediate')->count()),
+        ];
+    }
 }
