@@ -49,8 +49,8 @@ class ProductResource extends Resource
                             
                         Forms\Components\Select::make('type')
                             ->options([
-                                'final' => 'Produk Jadi',
-                                'intermediate' => 'Produk Setengah Jadi',
+                                'final' => 'Final Product',
+                                'intermediate' => 'Intermediate Product',
                             ])
                             ->required()
                             ->default('final')
@@ -204,11 +204,11 @@ class ProductResource extends Resource
                         'warning' => 'intermediate',
                     ])
                     ->formatStateUsing(fn (string $state): string => match ($state) {
-                        'final' => 'Produk Jadi',
-                        'intermediate' => 'Setengah Jadi',
+                        'final' => 'Final',
+                        'intermediate' => 'Intermediate',
                         default => $state,
                     })
-                    ->label('Tipe'),
+                    ->label('Type'),
 
                 TextColumn::make('base_price')
                     ->formatStateUsing(fn ($state) => 'Rp ' . number_format($state ?? 0, 0, ',', '.'))

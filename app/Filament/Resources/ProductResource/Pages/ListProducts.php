@@ -20,12 +20,12 @@ class ListProducts extends ListRecords
     public function getTabs(): array
     {
         return [
-            'semua' => \Filament\Resources\Components\Tab::make('Semua')
+            'all' => \Filament\Resources\Components\Tab::make('All')
                 ->badge(\App\Models\Product::count()),
-            'final' => \Filament\Resources\Components\Tab::make('Produk Jadi')
+            'final' => \Filament\Resources\Components\Tab::make('Final Product')
                 ->modifyQueryUsing(fn ($query) => $query->where('type', 'final'))
                 ->badge(\App\Models\Product::where('type', 'final')->count()),
-            'intermediate' => \Filament\Resources\Components\Tab::make('Produk Setengah Jadi')
+            'intermediate' => \Filament\Resources\Components\Tab::make('Intermediate Product')
                 ->modifyQueryUsing(fn ($query) => $query->where('type', 'intermediate'))
                 ->badge(\App\Models\Product::where('type', 'intermediate')->count()),
         ];
