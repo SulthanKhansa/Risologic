@@ -176,10 +176,14 @@ class SaleResource extends Resource
 
                 TextColumn::make('product.name')
                     ->searchable()
+                    ->sortable()
+                    ->toggleable()
                     ->label('Product'),
 
                 TextColumn::make('customer_name')
                     ->searchable()
+                    ->sortable()
+                    ->toggleable()
                     ->placeholder('-')
                     ->label('Customer'),
 
@@ -189,28 +193,33 @@ class SaleResource extends Resource
                         'warning' => 'online',
                         'info' => 'pre_order',
                     ])
+                    ->toggleable()
                     ->label('Channel'),
 
                 TextColumn::make('qty')
                     ->sortable()
+                    ->toggleable()
                     ->label('Quantity'),
 
                 TextColumn::make('total_price')
                     ->formatStateUsing(fn ($state) => 'Rp ' . number_format($state ?? 0, 0, ',', '.'))
                     ->sortable()
+                    ->toggleable()
                     ->label('Total Price'),
 
                 TextColumn::make('net_income')
                     ->formatStateUsing(fn ($state) => 'Rp ' . number_format($state ?? 0, 0, ',', '.'))
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->toggleable()
+                    ->isToggledHiddenByDefault()
                     ->summarize(Tables\Columns\Summarizers\Sum::make()->label('Total Net'))
                     ->label('Net Income'),
 
                 TextColumn::make('gross_profit_hidden')
                     ->formatStateUsing(fn ($state) => 'Rp ' . number_format((float) $state, 0, ',', '.'))
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->toggleable()
+                    ->isToggledHiddenByDefault()
                     ->label('Gross Profit'),
 
                 TextColumn::make('margin_hidden')
@@ -221,6 +230,8 @@ class SaleResource extends Resource
                         (float) $state >= 10 => 'warning',
                         default => 'danger',
                     })
+                    ->toggleable()
+                    ->isToggledHiddenByDefault()
                     ->label('Margin %'),
 
                 BadgeColumn::make('status')
@@ -229,15 +240,19 @@ class SaleResource extends Resource
                         'success' => 'paid',
                         'danger' => 'cancelled',
                     ])
+                    ->toggleable()
                     ->label('Status'),
 
                 TextColumn::make('recordedBy.name')
+                    ->toggleable()
+                    ->isToggledHiddenByDefault()
                     ->label('Recorded By'),
 
                 TextColumn::make('created_at')
                     ->dateTime()
-                    ->toggleable(isToggledHiddenByDefault: true)
-                    ->label('Recording Time'),
+                    ->sortable()
+                    ->toggleable()
+                    ->label('Trans. Date'),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('channel')
