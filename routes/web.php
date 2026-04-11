@@ -9,9 +9,6 @@ Route::get('/', function () {
 // TEMPORARY ROUTE TO RUN SEEDER
 Route::get('/setup-users', function () {
     try {
-        // Run shield generate just in case
-        \Illuminate\Support\Facades\Artisan::call('shield:generate', ['--all' => true]);
-
         // Force delete if they exist to start fresh
         \Illuminate\Support\Facades\DB::table('users')->whereIn('username', ['admin', 'staff'])->delete();
 
