@@ -212,7 +212,6 @@ class SaleResource extends Resource
                     ->sortable()
                     ->toggleable()
                     ->isToggledHiddenByDefault()
-                    ->summarize(Tables\Columns\Summarizers\Sum::make()->label('Total Net'))
                     ->label('Net Income'),
 
                 TextColumn::make('gross_profit_hidden')
