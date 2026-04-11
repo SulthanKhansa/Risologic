@@ -73,6 +73,9 @@ class Product extends Model
     public function updateBasePriceFromRecipe()
     {
         try {
+            // Force reload the relationship to avoid Filament memory caching during Edit
+            $this->load('recipeItems');
+            
             $total = $this->calculateHppFromRecipe();
             $batchYield = max(1, (int) ($this->batch_yield ?? 1));
             $this->base_price = $total / $batchYield;
