@@ -42,8 +42,7 @@ class SaleResource extends Resource
                         Forms\Components\DatePicker::make('created_at')
                             ->label('Date of Sale')
                             ->default(now())
-                            ->required()
-                            ->disabled(fn (?Sale $record) => $record && in_array($record->status, ['paid', 'cancelled'])),
+                            ->required(),
 
                         TextInput::make('customer_name')
                             ->label('Customer Name')
@@ -51,14 +50,6 @@ class SaleResource extends Resource
                             ->maxLength(255),
 
                         Select::make('channel')
-                            ->options([
-                                'stand' => 'Stand',
-                                'online' => 'Online',
-                                'pre_order' => 'Pre-Order',
-                            ])
-                            ->required()
-                            ->live()
-                            ->disabled(fn (?Sale $record) => $record && in_array($record->status, ['paid', 'cancelled']))
                             ->afterStateUpdated(function (Get $get, Set $set, ?string $state) {
                                 if ($state === 'online') {
                                     $totalPrice = (float) ($get('total_price') ?? 0);
@@ -76,7 +67,6 @@ class SaleResource extends Resource
                             ->searchable()
                             ->preload()
                             ->live()
-                            ->disabled(fn (?Sale $record) => $record && in_array($record->status, ['paid', 'cancelled']))
                             ->afterStateUpdated(fn (Get $get, Set $set) => self::updateCalculations($get, $set))
                             ->label('Product'),
 
@@ -85,7 +75,6 @@ class SaleResource extends Resource
                             ->required()
                             ->default(1)
                             ->live(onBlur: true)
-                            ->disabled(fn (?Sale $record) => $record && in_array($record->status, ['paid', 'cancelled']))
                             ->afterStateUpdated(fn (Get $get, Set $set) => self::updateCalculations($get, $set))
                             ->label('Quantity')
                             ->formatStateUsing(fn ($state) => $state === null ? null : (str_contains((string)$state, '.') ? (string)(float)$state : $state)),
@@ -95,7 +84,6 @@ class SaleResource extends Resource
                             ->prefix('Rp')
                             ->required()
                             ->live(onBlur: true)
-                            ->disabled(fn (?Sale $record) => $record && in_array($record->status, ['paid', 'cancelled']))
                             ->afterStateUpdated(function (Get $get, Set $set, ?string $state) {
                                 if ($get('channel') === 'online') {
                                     $set('admin_fee', (float) ($state ?? 0) * 0.20);
@@ -112,7 +100,6 @@ class SaleResource extends Resource
                             ->numeric()
                             ->prefix('Rp')
                             ->live(onBlur: true)
-                            ->disabled(fn (?Sale $record) => $record && in_array($record->status, ['paid', 'cancelled']))
                             ->afterStateUpdated(fn (Get $get, Set $set) => self::updateCalculations($get, $set))
                             ->label('Admin Fee / Commission')
                             ->formatStateUsing(fn ($state) => $state === null ? null : (str_contains((string)$state, '.') ? (string)(float)$state : $state)),
