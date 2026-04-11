@@ -58,7 +58,7 @@ class ProductResource extends Resource
                     ])->columns(3),
 
                 Forms\Components\Hidden::make('slug'),
-                Forms\Components\Hidden::make('base_price')->dehydrated(false),
+                Forms\Components\Hidden::make('base_price')->default(0),
 
                 Forms\Components\Section::make('Bill of Materials')
                     ->schema([
@@ -70,7 +70,6 @@ class ProductResource extends Resource
                             ->default(1)
                             ->label('1 Resep = berapa pcs?')
                             ->suffix('pcs')
-                            ->hint('Contoh: 500gr tepung → 8 kulit risol, isi 8')
                             ->live(onBlur: true)
                             ->columnSpanFull(),
                         Forms\Components\Repeater::make('recipeItems')
