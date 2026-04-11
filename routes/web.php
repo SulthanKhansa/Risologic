@@ -6,17 +6,24 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-// TEMPORARY ROUTE TO RUN REPAIR
+// TEMPORARY ROUTE TO RUN REPAIR & DIAGNOSTICS
 Route::get('/setup-users', function () {
     try {
-        // 1. Run migrations to ensure schema is up to date (fixes missing customer_name etc)
+        $results = [];
+
+        // 1. Check SQLite
+        $results['db_connection'] = \Illuminate\Support\Facades\DB::connection()->getDatabaseName();
+        
+        // 2. Run migrations
         \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
-        $migrationOutput = \Illuminate\Support\Facades\Artisan::output();
+        $results['migration_output'] = \Illuminate\Support\Facades\Artisan::output();
 
-        // 2. Force delete if they exist to start fresh
+        // 3. Check table columns
+        $results['sales_columns'] = \Illuminate\Support\Facades\Schema::getColumnListing('sales');
+        $results['users_columns'] = \Illuminate\Support\Facades\Schema::getColumnListing('users');
+
+        // 4. Force Reset Users
         \Illuminate\Support\Facades\DB::table('users')->whereIn('username', ['admin', 'staff'])->delete();
-
-        // 3. Create Admin directly via DB
         \Illuminate\Support\Facades\DB::table('users')->insert([
             'username' => 'admin',
             'name' => 'Administrator',
@@ -26,34 +33,15 @@ Route::get('/setup-users', function () {
             'updated_at' => now(),
         ]);
 
-        // 4. Create Staff directly via DB
-        \Illuminate\Support\Facades\DB::table('users')->insert([
-            'username' => 'staff',
-            'name' => 'Staff Karyawan',
-            'email' => 'staff@risologic.com',
-            'password' => \Illuminate\Support\Facades\Hash::make('12345'),
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        // 5. Check Extensions
+        $results['intl_enabled'] = extension_loaded('intl');
 
-        // 5. Assign Roles
-        $admin = \App\Models\User::where('username', 'admin')->first();
-        $adminRole = \Spatie\Permission\Models\Role::firstOrCreate(['name' => config('filament-shield.super_admin.name', 'super_admin'), 'guard_name' => 'web']);
-        $admin->assignRole($adminRole);
+        // 6. Get Last Log Errors (if any)
+        $logPath = storage_path('logs/laravel.log');
+        $results['last_log'] = file_exists($logPath) ? substr(file_get_contents($logPath), -2000) : 'No log file found';
 
-        $staff = \App\Models\User::where('username', 'staff')->first();
-        $staffRole = \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'staff', 'guard_name' => 'web']);
-        $staffPermissions = \Spatie\Permission\Models\Permission::where('name', 'like', 'view_%')
-            ->orWhere('name', 'like', 'widget_%')->get();
-        $staffRole->syncPermissions($staffPermissions);
-        $staff->assignRole($staffRole);
-
-        return 'BERHASIL REPARASI! <br><br>' . 
-                '<b>Hasil Migrasi:</b><br><pre>' . $migrationOutput . '</pre><br>' .
-                'Akun sudah di-reset ulang paksa.<br> 
-                Login Admin: <b>admin</b> / <b>110402</b><br>
-                Login Staff: <b>staff</b> / <b>12345</b>';
+        return response()->json($results);
     } catch (\Exception $e) {
-        return 'Gagal Reparasi: ' . $e->getMessage();
+        return response()->json(['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
     }
 });
