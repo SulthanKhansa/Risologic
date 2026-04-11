@@ -72,9 +72,16 @@ class Product extends Model
      */
     public function updateBasePriceFromRecipe()
     {
-        $total = $this->calculateHppFromRecipe();
-        $batchYield = max(1, (int) ($this->batch_yield ?? 1));
-        $this->base_price = $total / $batchYield;
-        $this->saveQuietly();
+        try {
+            $total = $this->calculateHppFromRecipe();
+            $batchYield = max(1, (int) ($this->batch_yield ?? 1));
+            $this->base_price = $total / $batchYield;
+            $this->saveQuietly();
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Failed to update base_price from recipe: ' . $e->getMessage(), [
+                'product_id' => $this->id,
+                'recipe_items' => $this->recipeItems->toArray()
+            ]);
+        }
     }
 }
