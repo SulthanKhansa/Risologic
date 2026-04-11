@@ -102,7 +102,7 @@ class RawMaterialResource extends Resource
                     ->searchable()
                     ->label('Brand'),
                 Tables\Columns\TextColumn::make('price_per_unit')
-                    ->formatStateUsing(fn ($state) => 'Rp ' . number_format($state ?? 0, 2, ',', '.'))
+                    ->formatStateUsing(fn ($state) => 'Rp ' . number_format($state ?? 0, 0, ',', '.'))
                     ->sortable()
                     ->label('Price/Base Unit'),
                 Tables\Columns\TextColumn::make('current_stock')
