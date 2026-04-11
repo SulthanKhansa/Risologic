@@ -122,8 +122,8 @@ class SaleResource extends Resource
                                 return 'Rp ' . number_format($grossProfit, 0, ',', '.') . ' (' . number_format($margin, 1) . '%)';
                             }),
 
-                        Forms\Components\Hidden::make('gross_profit_hidden'),
-                        Forms\Components\Hidden::make('margin_hidden'),
+                        Forms\Components\Hidden::make('gross_profit_hidden')->dehydrated(false),
+                        Forms\Components\Hidden::make('margin_hidden')->dehydrated(false),
                     ])->columns(['sm' => 1, 'md' => 2]),
 
                 Forms\Components\Section::make('Status & Recorder')
