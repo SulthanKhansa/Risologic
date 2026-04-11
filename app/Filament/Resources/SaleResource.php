@@ -45,6 +45,11 @@ class SaleResource extends Resource
                             ->required()
                             ->disabled(fn (?Sale $record) => $record && in_array($record->status, ['paid', 'cancelled'])),
 
+                        TextInput::make('customer_name')
+                            ->label('Customer Name')
+                            ->placeholder('e.g. Bpk. Agus')
+                            ->maxLength(255),
+
                         Select::make('channel')
                             ->options([
                                 'stand' => 'Stand',
@@ -185,6 +190,11 @@ class SaleResource extends Resource
                 TextColumn::make('product.name')
                     ->searchable()
                     ->label('Product'),
+
+                TextColumn::make('customer_name')
+                    ->searchable()
+                    ->placeholder('-')
+                    ->label('Customer'),
 
                 BadgeColumn::make('channel')
                     ->colors([
