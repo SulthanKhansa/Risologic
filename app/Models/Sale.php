@@ -22,6 +22,7 @@ class Sale extends Model
         'margin_percentage',
         'status',
         'recorded_by',
+        'created_at',
     ];
 
     protected $casts = [

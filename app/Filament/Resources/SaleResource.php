@@ -39,6 +39,12 @@ class SaleResource extends Resource
             ->schema([
                 Forms\Components\Section::make('Transaction Info')
                     ->schema([
+                        Forms\Components\DatePicker::make('created_at')
+                            ->label('Date of Sale')
+                            ->default(now())
+                            ->required()
+                            ->disabled(fn (?Sale $record) => $record && in_array($record->status, ['paid', 'cancelled'])),
+
                         Select::make('channel')
                             ->options([
                                 'stand' => 'Stand',
