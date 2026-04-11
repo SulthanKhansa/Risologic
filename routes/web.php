@@ -6,13 +6,17 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-// TEMPORARY ROUTE TO RUN SEEDER
+// TEMPORARY ROUTE TO RUN REPAIR
 Route::get('/setup-users', function () {
     try {
-        // Force delete if they exist to start fresh
+        // 1. Run migrations to ensure schema is up to date (fixes missing customer_name etc)
+        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+        $migrationOutput = \Illuminate\Support\Facades\Artisan::output();
+
+        // 2. Force delete if they exist to start fresh
         \Illuminate\Support\Facades\DB::table('users')->whereIn('username', ['admin', 'staff'])->delete();
 
-        // Create Admin directly via DB to bypass auto-hashing just in case
+        // 3. Create Admin directly via DB
         \Illuminate\Support\Facades\DB::table('users')->insert([
             'username' => 'admin',
             'name' => 'Administrator',
@@ -22,7 +26,7 @@ Route::get('/setup-users', function () {
             'updated_at' => now(),
         ]);
 
-        // Create Staff directly via DB
+        // 4. Create Staff directly via DB
         \Illuminate\Support\Facades\DB::table('users')->insert([
             'username' => 'staff',
             'name' => 'Staff Karyawan',
@@ -32,7 +36,7 @@ Route::get('/setup-users', function () {
             'updated_at' => now(),
         ]);
 
-        // Assign Roles (Eloquent is fine here since record now exists in DB)
+        // 5. Assign Roles
         $admin = \App\Models\User::where('username', 'admin')->first();
         $adminRole = \Spatie\Permission\Models\Role::firstOrCreate(['name' => config('filament-shield.super_admin.name', 'super_admin'), 'guard_name' => 'web']);
         $admin->assignRole($adminRole);
@@ -44,10 +48,12 @@ Route::get('/setup-users', function () {
         $staffRole->syncPermissions($staffPermissions);
         $staff->assignRole($staffRole);
 
-        return 'BERHASIL TOTAL! Akun sudah di-reset ulang paksa. <br> 
+        return 'BERHASIL REPARASI! <br><br>' . 
+                '<b>Hasil Migrasi:</b><br><pre>' . $migrationOutput . '</pre><br>' .
+                'Akun sudah di-reset ulang paksa.<br> 
                 Login Admin: <b>admin</b> / <b>110402</b><br>
                 Login Staff: <b>staff</b> / <b>12345</b>';
     } catch (\Exception $e) {
-        return 'Gagal: ' . $e->getMessage();
+        return 'Gagal Reparasi: ' . $e->getMessage();
     }
 });
