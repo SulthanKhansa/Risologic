@@ -172,7 +172,8 @@ class SaleResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('id')
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
 
                 TextColumn::make('product.name')
                     ->searchable()

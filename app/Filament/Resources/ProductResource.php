@@ -189,40 +189,28 @@ class ProductResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('id')
-                    ->sortable(),
-
-                TextColumn::make('name')
-                    ->searchable()
                     ->sortable()
-                    ->label('Product'),
-                    
+                    ->toggleable(),
+...
                 TextColumn::make('type')
                     ->badge()
-                    ->colors([
-                        'success' => 'final',
-                        'info' => 'intermediate',
-                    ])
-                    ->formatStateUsing(fn (string $state): string => match ($state) {
-                        'final' => 'Final',
-                        'intermediate' => 'Intermediate',
-                        default => $state,
-                    })
-                    ->label('Type'),
+...
+                    ->label('Type')
+                    ->toggleable(),
 
                 TextColumn::make('base_price')
                     ->formatStateUsing(fn ($state) => 'Rp ' . number_format($state ?? 0, 0, ',', '.'))
                     ->sortable()
-                    ->label('Modal (HPP)'),
-
-                // Removed redundant hpp column
-
-
+                    ->label('Modal (HPP)')
+                    ->toggleable(),
+...
                 TextColumn::make('current_stock')
                     ->numeric()
                     ->sortable()
                     ->badge()
                     ->color(fn (int $state): string => $state < 50 ? 'danger' : 'success')
-                    ->label('Stock'),
+                    ->label('Stock')
+                    ->toggleable(),
 
                 TextColumn::make('created_at')
                     ->dateTime()

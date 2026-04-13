@@ -165,13 +165,17 @@ class PurchaseResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('id')
+                    ->sortable()
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('purchase_date')
                     ->date()
                     ->sortable()
                     ->label('Purchase Date'),
                 Tables\Columns\TextColumn::make('items_count')
                     ->counts('items')
-                    ->label('Items Count'),
+                    ->label('Items Count')
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('total_amount')
                     ->formatStateUsing(fn ($state) => 'Rp ' . number_format($state ?? 0, 0, ',', '.'))
                     ->sortable()

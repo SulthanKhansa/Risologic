@@ -49,6 +49,9 @@ class SupplierResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('id')
+                    ->sortable()
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('name')
                     ->searchable()
                     ->sortable(),
@@ -56,7 +59,8 @@ class SupplierResource extends Resource
                     ->counts('rawMaterials')
                     ->label('Items Count'),
                 Tables\Columns\TextColumn::make('address')
-                    ->limit(50),
+                    ->limit(50)
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

@@ -95,20 +95,27 @@ class RawMaterialResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('id')
+                    ->sortable()
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('name')
                     ->searchable()
-                    ->label('Material'),
+                    ->label('Material')
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('brand')
                     ->searchable()
-                    ->label('Brand'),
+                    ->label('Brand')
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('price_per_unit')
                     ->formatStateUsing(fn ($state) => 'Rp ' . number_format($state ?? 0, 0, ',', '.'))
                     ->sortable()
-                    ->label('Price/Base Unit'),
+                    ->label('Price/Base Unit')
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('current_stock')
                     ->formatStateUsing(fn ($state, $record) => floatval($state) . ' ' . ($record->unit ?? 'pcs'))
                     ->sortable()
-                    ->label('Current Stock'),
+                    ->label('Current Stock')
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

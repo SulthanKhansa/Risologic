@@ -94,6 +94,9 @@ class ProductionEventResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('id')
+                    ->sortable()
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('product.name')
                     ->sortable()
                     ->searchable()
