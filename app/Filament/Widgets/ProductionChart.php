@@ -13,13 +13,24 @@ class ProductionChart extends ChartWidget
 
     protected function getData(): array
     {
+        $startDate = now()->subDays(6)->startOfDay();
+        
+        $productionData = ProductionEvent::query()
+            ->where('status', 'completed')
+            ->where('created_at', '>=', $startDate)
+            ->selectRaw('DATE(created_at) as date, SUM(quantity_produced) as total')
+            ->groupBy('date')
+            ->pluck('total', 'date');
+
         $data = [];
         $labels = [];
 
         for ($i = 6; $i >= 0; $i--) {
-            $date = now()->subDays($i)->format('Y-m-d');
-            $labels[] = now()->subDays($i)->format('d M');
-            $data[] = ProductionEvent::whereDate('created_at', $date)->where('status', 'completed')->sum('quantity_produced');
+            $dateObj = now()->subDays($i);
+            $dateString = $dateObj->format('Y-m-d');
+            
+            $labels[] = $dateObj->format('d M');
+            $data[] = (float) ($productionData[$dateString] ?? 0);
         }
 
         return [
@@ -29,6 +40,7 @@ class ProductionChart extends ChartWidget
                     'data' => $data,
                     'backgroundColor' => '#3b82f6',
                     'borderColor' => '#3b82f6',
+                    'fill' => 'start',
                 ],
             ],
             'labels' => $labels,
