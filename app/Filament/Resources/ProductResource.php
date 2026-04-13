@@ -191,10 +191,23 @@ class ProductResource extends Resource
                 TextColumn::make('id')
                     ->sortable()
                     ->toggleable(),
-...
+
+                TextColumn::make('name')
+                    ->searchable()
+                    ->sortable()
+                    ->label('Product'),
+
                 TextColumn::make('type')
                     ->badge()
-...
+                    ->colors([
+                        'success' => 'final',
+                        'info' => 'intermediate',
+                    ])
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                        'final' => 'Final',
+                        'intermediate' => 'Intermediate',
+                        default => $state,
+                    })
                     ->label('Type')
                     ->toggleable(),
 
@@ -203,7 +216,7 @@ class ProductResource extends Resource
                     ->sortable()
                     ->label('Modal (HPP)')
                     ->toggleable(),
-...
+
                 TextColumn::make('current_stock')
                     ->numeric()
                     ->sortable()
