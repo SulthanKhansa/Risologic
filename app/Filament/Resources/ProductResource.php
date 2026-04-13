@@ -1,5 +1,5 @@
 <?php
-
+/** Forced Update: 2026-04-13 18:15 **/
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ProductResource\Pages;
@@ -195,7 +195,7 @@ class ProductResource extends Resource
                 TextColumn::make('name')
                     ->searchable()
                     ->sortable()
-                    ->label('Product'),
+                    ->label('Produk'),
 
                 TextColumn::make('type')
                     ->badge()
