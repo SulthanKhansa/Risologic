@@ -28,7 +28,7 @@ Route::get('/setup-users', function () {
             'username' => 'admin',
             'name' => 'Administrator',
             'email' => 'admin@risologic.com',
-            'password' => \Illuminate\Support\Facades\Hash::make('110402'),
+            'password' => '110402', // Model cast 'hashed' handles this automatically
             'created_at' => now(),
             'updated_at' => now(),
         ]);
