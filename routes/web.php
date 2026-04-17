@@ -58,3 +58,63 @@ Route::get('/setup-users', function () {
         return response()->json(['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
     }
 });
+
+// TEMPORARY: Deep login diagnostics
+Route::get('/debug-login', function () {
+    try {
+        $results = [];
+
+        // 1. Check if user exists
+        $user = \App\Models\User::where('username', 'admin')->first();
+        $results['user_found'] = $user ? true : false;
+        $results['user_id'] = $user?->id;
+        $results['user_email'] = $user?->email;
+        $results['user_username'] = $user?->username;
+
+        // 2. Check password
+        if ($user) {
+            $results['password_valid'] = \Illuminate\Support\Facades\Hash::check('110402', $user->password);
+            $results['password_hash_prefix'] = substr($user->password, 0, 20) . '...';
+        }
+
+        // 3. Test Auth::attempt directly
+        $results['auth_attempt'] = \Illuminate\Support\Facades\Auth::attempt([
+            'username' => 'admin',
+            'password' => '110402',
+        ]);
+        \Illuminate\Support\Facades\Auth::logout();
+
+        // 4. Check session driver & config
+        $results['session_driver'] = config('session.driver');
+        $results['session_connection'] = config('session.connection');
+        $results['session_table'] = config('session.table');
+        $results['session_domain'] = config('session.domain');
+        $results['session_secure'] = config('session.secure');
+        $results['session_same_site'] = config('session.same_site');
+
+        // 5. Check if sessions table exists
+        $results['sessions_table_exists'] = \Illuminate\Support\Facades\Schema::hasTable('sessions');
+
+        // 6. Check APP_URL vs actual URL
+        $results['app_url'] = config('app.url');
+        $results['app_env'] = config('app.env');
+        $results['app_debug'] = config('app.debug');
+
+        // 7. Count sessions in DB
+        if ($results['sessions_table_exists']) {
+            $results['session_count'] = \Illuminate\Support\Facades\DB::table('sessions')->count();
+        }
+
+        // 8. Check FilamentShield - roles
+        $results['user_roles'] = $user ? $user->getRoleNames()->toArray() : [];
+
+        // 9. canAccessPanel check
+        if ($user) {
+            $results['can_access_panel'] = $user->canAccessPanel(\Filament\Facades\Filament::getDefaultPanel());
+        }
+
+        return response()->json($results);
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+    }
+});
