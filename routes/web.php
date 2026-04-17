@@ -35,7 +35,10 @@ Route::get('/setup-users', function () {
 
         // 5. Assign Super Admin Role
         try {
-            \Illuminate\Support\Facades\Artisan::call('shield:install', ['--all' => true, '--no-interaction' => true]);
+            // First check if role exists, if not generate it
+            if (\DB::table('roles')->where('name', 'super_admin')->doesntExist()) {
+                \Illuminate\Support\Facades\Artisan::call('shield:generate', ['--all' => true]);
+            }
             $admin->assignRole('super_admin');
             $results['role_assignment'] = 'Success: super_admin assigned';
         } catch (\Exception $e) {
