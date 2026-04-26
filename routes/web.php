@@ -49,9 +49,20 @@ Route::get('/setup-users', function () {
         $results['intl_enabled'] = extension_loaded('intl');
         $results['php_version'] = PHP_VERSION;
 
-        // 7. Get Last Log Errors (truncated to 5000 chars)
+        // 7. Get Last Log Errors (Specifically looking for the actual ERROR message)
         $logPath = storage_path('logs/laravel.log');
-        $results['last_log'] = file_exists($logPath) ? substr(file_get_contents($logPath), -5000) : 'No log file found';
+        if (file_exists($logPath)) {
+            $logContent = file_get_contents($logPath);
+            // Search for the last "ERROR" keyword
+            $lastErrorPos = strrpos($logContent, 'local.ERROR');
+            if ($lastErrorPos !== false) {
+                $results['last_error'] = substr($logContent, $lastErrorPos, 2000); // Get 2000 chars from error start
+            } else {
+                $results['last_error'] = 'No specific ERROR keyword found, showing last 1000 chars: ' . substr($logContent, -1000);
+            }
+        } else {
+            $results['last_error'] = 'No log file found';
+        }
 
         return response()->json($results);
     } catch (\Exception $e) {
