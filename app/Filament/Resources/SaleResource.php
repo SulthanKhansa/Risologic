@@ -215,14 +215,14 @@ class SaleResource extends Resource
                     ->isToggledHiddenByDefault()
                     ->label('Net Income'),
 
-                TextColumn::make('gross_profit_hidden')
+                TextColumn::make('gross_profit')
                     ->formatStateUsing(fn ($state) => 'Rp ' . number_format((float) $state, 0, ',', '.'))
                     ->sortable()
                     ->toggleable()
                     ->isToggledHiddenByDefault()
                     ->label('Gross Profit'),
 
-                TextColumn::make('margin_hidden')
+                TextColumn::make('margin_percentage')
                     ->formatStateUsing(fn ($state) => number_format((float) $state, 1) . '%')
                     ->badge()
                     ->color(fn (string $state): string => match (true) {
