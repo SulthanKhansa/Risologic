@@ -49,19 +49,19 @@ Route::get('/setup-users', function () {
         $results['intl_enabled'] = extension_loaded('intl');
         $results['php_version'] = PHP_VERSION;
 
-        // 7. Get Last Log Errors (Specifically looking for the actual ERROR message)
+        // 7. Get Last Log Errors (Memory-Safe version using fseek)
         $logPath = storage_path('logs/laravel.log');
         if (file_exists($logPath)) {
-            $logContent = file_get_contents($logPath);
-            // Search for the last "ERROR" keyword
-            $lastErrorPos = strrpos($logContent, 'local.ERROR');
-            if ($lastErrorPos !== false) {
-                $results['last_error'] = substr($logContent, $lastErrorPos, 2000); // Get 2000 chars from error start
-            } else {
-                $results['last_error'] = 'No specific ERROR keyword found, showing last 1000 chars: ' . substr($logContent, -1000);
+            $size = filesize($logPath);
+            $handle = fopen($logPath, "r");
+            $readSize = min($size, 5000); // Only read last 5KB
+            if ($size > $readSize) {
+                fseek($handle, $size - $readSize);
             }
+            $results['last_log_preview'] = fread($handle, $readSize);
+            fclose($handle);
         } else {
-            $results['last_error'] = 'No log file found';
+            $results['last_log_preview'] = 'No log file found';
         }
 
         return response()->json($results);
