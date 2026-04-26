@@ -12,7 +12,6 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\BadgeColumn;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
 use App\Models\Product;
@@ -188,12 +187,14 @@ class SaleResource extends Resource
                     ->placeholder('-')
                     ->label('Customer'),
 
-                BadgeColumn::make('channel')
-                    ->colors([
-                        'success' => 'stand',
-                        'warning' => 'online',
-                        'info' => 'pre_order',
-                    ])
+                TextColumn::make('channel')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'stand' => 'success',
+                        'online' => 'warning',
+                        'pre_order' => 'info',
+                        default => 'gray',
+                    })
                     ->toggleable()
                     ->label('Channel'),
 
@@ -234,12 +235,14 @@ class SaleResource extends Resource
                     ->isToggledHiddenByDefault()
                     ->label('Margin %'),
 
-                BadgeColumn::make('status')
-                    ->colors([
-                        'warning' => 'pending',
-                        'success' => 'paid',
-                        'danger' => 'cancelled',
-                    ])
+                TextColumn::make('status')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'pending' => 'warning',
+                        'paid' => 'success',
+                        'cancelled' => 'danger',
+                        default => 'gray',
+                    })
                     ->toggleable()
                     ->label('Status'),
 

@@ -199,10 +199,11 @@ class ProductResource extends Resource
 
                 TextColumn::make('type')
                     ->badge()
-                    ->colors([
-                        'success' => 'final',
-                        'info' => 'intermediate',
-                    ])
+                    ->color(fn (string $state): string => match ($state) {
+                        'final' => 'success',
+                        'intermediate' => 'info',
+                        default => 'gray',
+                    })
                     ->formatStateUsing(fn (string $state): string => match ($state) {
                         'final' => 'Final',
                         'intermediate' => 'Intermediate',
